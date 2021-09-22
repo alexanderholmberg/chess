@@ -47,16 +47,23 @@ mod tests {
             assert_eq!(game.board[3][5].is_none(), true);
             assert_eq!(game.board[4][2].is_none(), true);
         }
-    }
 
-    mod movement {
-        use super::*;
-        #[test]
         fn gets_game_state() {
             let mut game = Game::new();
             assert_eq!(*game.get_game_state(), GameState::InProgress);
             game.state = GameState::GameOver;
             assert_eq!(*game.get_game_state(), GameState::GameOver);
+        }
+    }
+
+    mod movement {
+        use super::*;
+        #[test]
+        fn parsing_positions() {
+            //let game = Game::new();
+            assert_eq!(Game::parse_position(String::from("a5")), (4, 0));
+            assert_eq!(Game::parse_position(String::from("d7")), (6, 3));
+            assert_eq!(Game::parse_position(String::from("h7")), (6, 7));
         }
     }
 }
@@ -154,9 +161,44 @@ impl Game {
 
     // if illegal -> return Err
     // if legal and InProgress is true -> return the current state of the game
-    // pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
+    // example position = "a5"
+    pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
+        // parse position to a row and col
+        // check if it's a legal move
+        // make the move by updating the board
+        // return the current state
+        let from = Game::parse_position(_from);
+        let to = Game::parse_position(_to);
 
-    // }
+        //let possible_moves = get_possible_moves(self, from);
+        Some(GameState::InProgress)
+    }
+
+    fn parse_position(position: String) -> (usize, usize) {
+        // turn string into two chars
+        // match the first one with a num
+        // parse the other one - 1 to a int
+        let mut chars = vec![];
+        for ch in position.chars() {
+            chars.push(ch);
+        }
+
+        let col = match chars[0] {
+            'a' => 0,
+            'b' => 1,
+            'c' => 2,
+            'd' => 3,
+            'e' => 4,
+            'f' => 5,
+            'g' => 6,
+            'h' => 7,
+            _ => 8, // handle error
+        };
+        let row = chars[1].to_digit(10).unwrap() - 1; // handle error
+
+        return (row as usize, col);
+    }
+
     // // promote a peasant
     // pub fn set_promotion(&mut self, _piece: String) -> () {
 
@@ -166,7 +208,5 @@ impl Game {
         &self.state
     }
     // // given position, returns all possible moves for the piece
-    // pub fn get_possible_moves(&self, _position: String) -> Optional<Vec<String>> {
-
-    // }
+    //pub fn get_possible_moves(&self, _position: String) -> Optional<Vec<String>> {}
 }
