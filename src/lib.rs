@@ -296,19 +296,24 @@ impl Game {
     }
 
     fn initialize_board_from_fen(fen_string: String) -> [[Option<Piece>; 8]; 8] {
+      // split on / to get every line
+      // place a piece for every char
+      // 
       let mut b: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
-        for row in 0..=1 {
-            for col in 0..=7 {
-                b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
-            }
+      let mut sub = fen_string.split("/");
+      let mut lines = vec![];
+      for line in sub {
+        lines.push(line);
+      }
+      for i in 0..=7 {
+        for c in lines[i].chars() {
+          match c {
+            'r' => 
+          }
         }
-        for row in 6..=7 {
-            for col in 0..=7 {
-                b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
-            }
-        }
+      }
 
-        b
+      _
     }
 
     // if illegal -> return Err
