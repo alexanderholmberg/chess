@@ -3,6 +3,45 @@ mod tests {
   use super::*;
   mod init {
     use super::*;
+
+    #[test]
+    fn initializes_correctly() {
+      //let game = Game::new();
+      let game = Game::new_fen(String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+      assert_eq!(game.board[0][0].unwrap(), Piece::Rook(Colour::White));
+      assert_eq!(game.board[0][1].unwrap(), Piece::Knight(Colour::White));
+      assert_eq!(game.board[0][2].unwrap(), Piece::Bishop(Colour::White));
+      assert_eq!(game.board[0][3].unwrap(), Piece::Queen(Colour::White));
+      assert_eq!(game.board[0][4].unwrap(), Piece::King(Colour::White));
+      assert_eq!(game.board[0][5].unwrap(), Piece::Bishop(Colour::White));
+      assert_eq!(game.board[0][6].unwrap(), Piece::Knight(Colour::White));
+      assert_eq!(game.board[0][7].unwrap(), Piece::Rook(Colour::White));
+
+      for i in 0..=7 {
+        assert_eq!(game.board[1][i].unwrap(), Piece::Pawn(Colour::White));
+      }
+
+      for i in 0..=7 {
+        assert_eq!(game.board[2][i].is_none(), true);
+      }
+
+      for i in 0..=7 {
+        assert_eq!(game.board[6][i].unwrap(), Piece::Pawn(Colour::Black));
+      }
+
+      assert_eq!(game.board[7][0].unwrap(), Piece::Rook(Colour::Black));
+      assert_eq!(game.board[7][1].unwrap(), Piece::Knight(Colour::Black));
+      assert_eq!(game.board[7][2].unwrap(), Piece::Bishop(Colour::Black));
+      assert_eq!(game.board[7][3].unwrap(), Piece::Queen(Colour::Black));
+      assert_eq!(game.board[7][4].unwrap(), Piece::King(Colour::Black));
+      assert_eq!(game.board[7][5].unwrap(), Piece::Bishop(Colour::Black));
+      assert_eq!(game.board[7][6].unwrap(), Piece::Knight(Colour::Black));
+      assert_eq!(game.board[7][7].unwrap(), Piece::Rook(Colour::Black));
+
+
+      
+    }
+
     #[test]
     fn kings_are_in_place() {
       let game = Game::new();
@@ -208,6 +247,14 @@ impl Game {
         }
     }
 
+    pub fn new_fen(fen_string: String) -> Game {
+        Game {
+            name: String::from("yoo"),
+            state: GameState::InProgress,
+            board: Game::initialize_board_from_fen(fen_string),
+        }
+    }
+    
     fn get_starting_piece_at_position(row: usize, col: usize) -> Piece {
         match (row, col) {
             (1, _) => Piece::Pawn(Colour::White),
@@ -234,6 +281,22 @@ impl Game {
 
     fn initialize_board() -> [[Option<Piece>; 8]; 8] {
         let mut b: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
+        for row in 0..=1 {
+            for col in 0..=7 {
+                b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
+            }
+        }
+        for row in 6..=7 {
+            for col in 0..=7 {
+                b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
+            }
+        }
+
+        b
+    }
+
+    fn initialize_board_from_fen(fen_string: String) -> [[Option<Piece>; 8]; 8] {
+      let mut b: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
         for row in 0..=1 {
             for col in 0..=7 {
                 b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
@@ -461,48 +524,4 @@ impl Game {
 
       moves
   }
-
-    
-    // fn filter_moves(&self, moving_piece: Option<Piece>, all_moves: Vec<Position>) -> Vec<Position> {
-    //   // for every move, check if spot is taken
-    //   // if taken and same colour -> not possible move
-    //   // if taken and diff colour -> possible move
-
-    //   // match for every piece and filter moves accordingly
-
-    //   match moving_piece {
-    //     Some(Piece::Rook(_)) => {
-    //       // check front
-    //       // check back
-    //       // check right
-    //       // check left
-    //     },
-    //     None => panic!("trying to move a None piece"),
-
-    //   }
-
-
-    //   let mut moves = vec![];
-    //   for mv in &all_moves {
-    //     let piece = self.board[mv.0][mv.1];
-    //     match piece {
-    //       None => {
-    //         // can always move to a None tile
-    //         moves.push(mv)
-    //       },
-    //       Some(attacked_piece) => {
-    //         match moving_piece {
-    //           Some(attacking_piece) => {
-    //             if attacked_piece.get_colour() != attacking_piece.get_colour() {
-    //               moves.push(mv);
-    //             }
-    //           }
-    //           None => panic!("trying to move a None piece"),
-    //         }
-    //       }
-    //     }
-    //   }
-
-    //   all_moves
-    // }
 }
