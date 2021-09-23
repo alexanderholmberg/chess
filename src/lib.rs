@@ -1,103 +1,125 @@
 #[cfg(test)]
 mod tests {
+  use super::*;
+  mod init {
     use super::*;
-    mod init {
-        use super::*;
-        #[test]
-        fn kings_are_in_place() {
-            let game = Game::new();
-            assert_eq!(
-                game.board[7][4].unwrap_or(Piece::Pawn(Colour::Black)),
-                Piece::King(Colour::Black)
-            );
-            assert_eq!(
-                game.board[0][4].unwrap_or(Piece::Pawn(Colour::Black)),
-                Piece::King(Colour::White)
-            );
-        }
-        #[test]
-        fn queens_are_in_place() {
-            let game = Game::new();
-            assert_eq!(
-                game.board[7][3].unwrap_or(Piece::Pawn(Colour::Black)),
-                Piece::Queen(Colour::Black)
-            );
-            assert_eq!(
-                game.board[0][3].unwrap_or(Piece::Pawn(Colour::Black)),
-                Piece::Queen(Colour::White)
-            );
-        }
-
-        #[test]
-        fn rooks_are_in_place() {
-            let game = Game::new();
-            assert_eq!(
-                game.board[0][0].unwrap_or(Piece::Pawn(Colour::Black)),
-                Piece::Rook(Colour::White)
-            );
-            assert_eq!(
-                game.board[7][7].unwrap_or(Piece::Pawn(Colour::Black)),
-                Piece::Rook(Colour::Black)
-            );
-        }
-
-        #[test]
-        fn nones_in_place() {
-            let game = Game::new();
-            assert_eq!(game.board[3][5].is_none(), true);
-            assert_eq!(game.board[4][2].is_none(), true);
-        }
-
-        fn gets_game_state() {
-            let mut game = Game::new();
-            assert_eq!(*game.get_game_state(), GameState::InProgress);
-            game.state = GameState::GameOver;
-            assert_eq!(*game.get_game_state(), GameState::GameOver);
-        }
+    #[test]
+    fn kings_are_in_place() {
+      let game = Game::new();
+      assert_eq!(
+        game.board[7][4].unwrap_or(Piece::Pawn(Colour::Black)),
+        Piece::King(Colour::Black)
+      );
+      assert_eq!(
+        game.board[0][4].unwrap_or(Piece::Pawn(Colour::Black)),
+        Piece::King(Colour::White)
+      );
+    }
+    #[test]
+    fn queens_are_in_place() {
+      let game = Game::new();
+      assert_eq!(
+        game.board[7][3].unwrap_or(Piece::Pawn(Colour::Black)),
+        Piece::Queen(Colour::Black)
+      );
+      assert_eq!(
+        game.board[0][3].unwrap_or(Piece::Pawn(Colour::Black)),
+        Piece::Queen(Colour::White)
+      );
     }
 
-    mod movement {
-        use super::*;
-        #[test]
-        fn parsing_positions() {
-            //let game = Game::new();
-            assert_eq!(Game::parse_string(String::from("a5")), (4, 0));
-            assert_eq!(Game::parse_string(String::from("d7")), (6, 3));
-            assert_eq!(Game::parse_string(String::from("h7")), (6, 7));
-        }
-
-        #[test]
-        fn pawn_moves() {
-            let game = Game::new();
-
-            let mut m = Game::get_available_moves((1, 0), Some(Piece::Pawn(Colour::White)));
-            let mut m2 = vec![(2, 0), (3, 0), (2, 1)];
-            m.sort();
-            m2.sort();
-            assert_eq!(m, m2);
-
-            let mut m3 = Game::get_available_moves((1, 6), Some(Piece::Pawn(Colour::White)));
-            let mut m4 = vec![(2, 5), (2, 6), (2, 7), (3, 6)];
-            m3.sort();
-            m4.sort();
-            assert_eq!(m3, m4);
-
-
-            // let moves = match game.get_possible_moves(String::from("b1")) {
-            //     Some(v) => v,
-            //     _ => panic!("eerrrrrrr!"),
-            // };
-            // assert_eq!(moves, vec![String::from("c1"), String::from("d1")]);
-        }
-
-        // fn rook_moves() {
-        //     let game = Game::new();
-        //     assert_eq!(
-        //         game.make_move(String::from("a1"), String::from("a2")),
-        //         false
-        //     );
-        // }
+    #[test]
+    fn rooks_are_in_place() {
+      let game = Game::new();
+      assert_eq!(
+        game.board[0][0].unwrap_or(Piece::Pawn(Colour::Black)),
+        Piece::Rook(Colour::White)
+      );
+      assert_eq!(
+        game.board[7][7].unwrap_or(Piece::Pawn(Colour::Black)),
+        Piece::Rook(Colour::Black)
+      );
     }
+
+    #[test]
+    fn nones_in_place() {
+      let game = Game::new();
+      assert_eq!(game.board[3][5].is_none(), true);
+      assert_eq!(game.board[4][2].is_none(), true);
+    }
+
+    fn gets_game_state() {
+      let mut game = Game::new();
+      assert_eq!(*game.get_game_state(), GameState::InProgress);
+      game.state = GameState::GameOver;
+      assert_eq!(*game.get_game_state(), GameState::GameOver);
+    }
+  }
+
+  mod movement {
+    use super::*;
+    #[test]
+    fn parsing_positions() {
+      //let game = Game::new();
+      assert_eq!(Game::parse_string(String::from("a5")), (4, 0));
+      assert_eq!(Game::parse_string(String::from("d7")), (6, 3));
+      assert_eq!(Game::parse_string(String::from("h7")), (6, 7));
+    }
+
+    #[test]
+    fn pawn_moves() {
+      // let game = Game::new();
+
+      let mut m = Game::get_available_moves((1, 0), Some(Piece::Pawn(Colour::White)));
+      let mut m2 = vec![(2, 0), (3, 0), (2, 1)];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let mut m3 = Game::get_available_moves((1, 6), Some(Piece::Pawn(Colour::White)));
+      let mut m4 = vec![(2, 5), (2, 6), (2, 7), (3, 6)];
+      m3.sort();
+      m4.sort();
+      assert_eq!(m3, m4);
+
+      // let moves = match game.get_possible_moves(String::from("b1")) {
+      //     Some(v) => v,
+      //     _ => panic!("eerrrrrrr!"),
+      // };
+      // assert_eq!(moves, vec![String::from("c1"), String::from("d1")]);
+    }
+
+    #[test]
+    fn rook_moves() {
+      let mut m = Game::get_available_moves((0, 0), Some(Piece::Rook(Colour::White)));
+      let mut m2 = vec![];
+      for i in 1..=7 {
+        m2.push((i, 0));
+        m2.push((0, i));
+      }
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let mut m = Game::get_available_moves((5, 5), Some(Piece::Rook(Colour::White)));
+      let mut m2 = vec![];
+      for i in 6..=7 {
+        m2.push((i, 5))
+      }
+      for i in 0..=4 {
+        m2.push((i, 5));
+      }
+      for i in 6..=7 {
+        m2.push((5, i));
+      }
+      for i in 0..=4 {
+        m2.push((5, i));
+      }
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+    }
+  }
 }
 
 #[derive(Debug, PartialEq)]
@@ -316,10 +338,34 @@ impl Game {
 
                 moves
             },
-            // Some(Piece::Rook(Colour::White)) => {
-            //     // every tile forward
-            //     // every tile sideways
-            // },
+            Some(Piece::Rook(Colour::White)) => {
+              let mut moves = vec![];
+              // every tile forward
+              if position.0 < 7 {
+                for i in (position.0 + 1)..=7 {
+                  moves.push((i, position.1)); 
+                }
+              }
+              // every tile backward
+              if position.0 > 0 {
+                for i in ((0..=position.0 - 1)).rev() {
+                  moves.push((i, position.1));
+                }
+              }
+              // every tile to right
+              if position.1 < 7 {
+                for i in (position.1 + 1)..=7 {
+                  moves.push((position.0, i));
+                }
+              }
+              // every tile to left
+              if position.1 > 0 {
+                for i in (0..=(position.1 - 1)).rev() {
+                  moves.push((position.0, i));
+                }
+              }
+              moves
+            },
             _ => vec![]
             // Some(Piece::Knight(Colour::White)) => {},
             // Some(Piece::Bishop(Colour::White)) => {},
