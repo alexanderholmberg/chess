@@ -40,3 +40,18 @@ pub enum GameState {
   GameOver bool,
 }
 ```
+
+tankar:
+
+- läsa in FEN strings för att smälla upp ett bräde
+  - hade hjälp enormt vid testande
+
+få input -> parsea till row,col -> generera alla lagliga moves
+-> kolla om move är lagligt -> move
+ex:
+"a2", "a4" -> Pawn till (0, 3) -> [(0, 2), (0, 3)] -> är lagligt
+-> förflytta
+
+todo:
+
+- load board from FEN string
