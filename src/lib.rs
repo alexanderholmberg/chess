@@ -118,6 +118,17 @@ mod tests {
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
+
+      let mut m = Game::get_available_moves((7, 7), Some(Piece::Rook(Colour::Black)));
+      let mut m2 = vec![];
+      for i in 0..=6 {
+        m2.push((i, 7));
+        m2.push((7, i));
+      }
+      //m2.push((1, 2));
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
     }
   }
 }
@@ -338,7 +349,7 @@ impl Game {
 
                 moves
             },
-            Some(Piece::Rook(Colour::White)) => {
+            Some(Piece::Rook(Colour::White)) | Some(Piece::Rook(Colour::Black)) => {
               let mut moves = vec![];
               // every tile forward
               if position.0 < 7 {
