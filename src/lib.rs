@@ -61,23 +61,23 @@ mod tests {
     #[test]
     fn parsing_positions() {
       //let game = Game::new();
-      assert_eq!(Game::parse_string(String::from("a5")), (4, 0));
-      assert_eq!(Game::parse_string(String::from("d7")), (6, 3));
-      assert_eq!(Game::parse_string(String::from("h7")), (6, 7));
+      assert_eq!(Game::parse_string(String::from("a5")), Position(4, 0));
+      assert_eq!(Game::parse_string(String::from("d7")), Position(6, 3));
+      assert_eq!(Game::parse_string(String::from("h7")), Position(6, 7));
     }
 
     #[test]
     fn pawn_moves() {
       // let game = Game::new();
 
-      let mut m = Game::get_available_moves((1, 0), Some(Piece::Pawn(Colour::White)));
-      let mut m2 = vec![(2, 0), (3, 0), (2, 1)];
+      let mut m = Game::get_available_moves(Position(1, 0), Some(Piece::Pawn(Colour::White)));
+      let mut m2 = vec![Position(2, 0), Position(3, 0), Position(2, 1)];
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
 
-      let mut m3 = Game::get_available_moves((1, 6), Some(Piece::Pawn(Colour::White)));
-      let mut m4 = vec![(2, 5), (2, 6), (2, 7), (3, 6)];
+      let mut m3 = Game::get_available_moves(Position(1, 6), Some(Piece::Pawn(Colour::White)));
+      let mut m4 = vec![Position(2, 5), Position(2, 6), Position(2, 7), Position(3, 6)];
       m3.sort();
       m4.sort();
       assert_eq!(m3, m4);
@@ -91,41 +91,40 @@ mod tests {
 
     #[test]
     fn rook_moves() {
-      let mut m = Game::get_available_moves((0, 0), Some(Piece::Rook(Colour::White)));
+      let mut m = Game::get_available_moves(Position(0, 0), Some(Piece::Rook(Colour::White)));
       let mut m2 = vec![];
       for i in 1..=7 {
-        m2.push((i, 0));
-        m2.push((0, i));
+        m2.push(Position(i, 0));
+        m2.push(Position(0, i));
       }
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
 
-      let mut m = Game::get_available_moves((5, 5), Some(Piece::Rook(Colour::White)));
+      let mut m = Game::get_available_moves(Position(5, 5), Some(Piece::Rook(Colour::White)));
       let mut m2 = vec![];
       for i in 6..=7 {
-        m2.push((i, 5))
+        m2.push(Position(i, 5))
       }
       for i in 0..=4 {
-        m2.push((i, 5));
+        m2.push(Position(i, 5));
       }
       for i in 6..=7 {
-        m2.push((5, i));
+        m2.push(Position(5, i));
       }
       for i in 0..=4 {
-        m2.push((5, i));
+        m2.push(Position(5, i));
       }
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
 
-      let mut m = Game::get_available_moves((7, 7), Some(Piece::Rook(Colour::Black)));
+      let mut m = Game::get_available_moves(Position(7, 7), Some(Piece::Rook(Colour::Black)));
       let mut m2 = vec![];
       for i in 0..=6 {
-        m2.push((i, 7));
-        m2.push((7, i));
+        m2.push(Position(i, 7));
+        m2.push(Position(7, i));
       }
-      //m2.push((1, 2));
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
@@ -139,6 +138,9 @@ pub enum GameState {
     Check,
     GameOver,
 }
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
+struct Position(usize, usize);
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Colour {
@@ -173,6 +175,7 @@ pub struct Game {
     pub name: String,
     pub board: [[Option<Piece>; 8]; 8],
 }
+
 
 impl Game {
     // creates a new game
@@ -242,7 +245,7 @@ impl Game {
         Some(GameState::InProgress)
     }
 
-    fn parse_string(position: String) -> (usize, usize) {
+    fn parse_string(position: String) -> Position {
         // turn string into two chars
         // match the first one with a num
         // parse the other one - 1 to a int
@@ -264,10 +267,10 @@ impl Game {
         };
         let row = chars[1].to_digit(10).unwrap() - 1; // handle error
 
-        return (row as usize, col);
+        return Position(row as usize, col);
     }
 
-    fn parse_coordinates(position: (usize, usize)) -> String {
+    fn parse_coordinates(position: Position) -> String {
         let col = match position.1 {
             0 => "a",
             1 => "b",
@@ -319,32 +322,32 @@ impl Game {
         //Some(vec![String::from("yo")])
     }
 
-    fn get_available_moves(position: (usize, usize), piece: Option<Piece>) -> Vec<(usize, usize)> {
+    fn get_available_moves(position: Position, piece: Option<Piece>) -> Vec<Position> {
         let moves = match piece {
             Some(Piece::Pawn(Colour::White)) => {
                 let mut moves = vec![];
                 // 2 forward
                 match position {
-                    (1, col) => {
-                        moves.push((3, col));
+                    Position(1, col) => {
+                        moves.push(Position(3, col));
                     }
-                    (6, col) => {
-                        moves.push((4, col));
+                    Position(6, col) => {
+                        moves.push(Position(4, col));
                     }
                     _ => {}
                 }
 
                 // 1 forward
-                moves.push((position.0 + 1, position.1));
+                moves.push(Position(position.0 + 1, position.1));
 
                 // 1 diagonal to the right
                 if position.1 < 7 {
-                    moves.push((position.0 + 1, position.1 + 1));
+                    moves.push(Position(position.0 + 1, position.1 + 1));
                 }
                 
                 // 1 diagonal to the left
                 if position.1 > 0 {
-                    moves.push((position.0 + 1, position.1 - 1));
+                    moves.push(Position(position.0 + 1, position.1 - 1));
                 }
 
                 moves
@@ -354,25 +357,25 @@ impl Game {
               // every tile forward
               if position.0 < 7 {
                 for i in (position.0 + 1)..=7 {
-                  moves.push((i, position.1)); 
+                  moves.push(Position(i, position.1)); 
                 }
               }
               // every tile backward
               if position.0 > 0 {
                 for i in ((0..=position.0 - 1)).rev() {
-                  moves.push((i, position.1));
+                  moves.push(Position(i, position.1));
                 }
               }
               // every tile to right
               if position.1 < 7 {
                 for i in (position.1 + 1)..=7 {
-                  moves.push((position.0, i));
+                  moves.push(Position(position.0, i));
                 }
               }
               // every tile to left
               if position.1 > 0 {
                 for i in (0..=(position.1 - 1)).rev() {
-                  moves.push((position.0, i));
+                  moves.push(Position(position.0, i));
                 }
               }
               moves
@@ -383,7 +386,6 @@ impl Game {
             // Some(Piece::Queen(Colour::White)) => {},
             // Some(Piece::King(Colour::White)) => {},
             // Some(Piece::Pawn(Colour::Black)) => {},
-            // Some(Piece::Rook(Colour::Black)) => {},
             // Some(Piece::Knight(Colour::Black)) => {},
             // Some(Piece::Bishop(Colour::Black)) => {},
             // Some(Piece::Queen(Colour::Black)) => {},
