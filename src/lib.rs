@@ -70,13 +70,13 @@ mod tests {
     fn pawn_moves() {
       // let game = Game::new();
 
-      let mut m = Game::get_available_moves(Position(1, 0), Some(Piece::Pawn(Colour::White)));
+      let mut m = Game::get_all_moves(Position(1, 0), Some(Piece::Pawn(Colour::White)));
       let mut m2 = vec![Position(2, 0), Position(3, 0), Position(2, 1)];
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
 
-      let mut m3 = Game::get_available_moves(Position(1, 6), Some(Piece::Pawn(Colour::White)));
+      let mut m3 = Game::get_all_moves(Position(1, 6), Some(Piece::Pawn(Colour::White)));
       let mut m4 = vec![Position(2, 5), Position(2, 6), Position(2, 7), Position(3, 6)];
       m3.sort();
       m4.sort();
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn rook_moves() {
-      let mut m = Game::get_available_moves(Position(0, 0), Some(Piece::Rook(Colour::White)));
+      let mut m = Game::get_all_moves(Position(0, 0), Some(Piece::Rook(Colour::White)));
       let mut m2 = vec![];
       for i in 1..=7 {
         m2.push(Position(i, 0));
@@ -101,7 +101,7 @@ mod tests {
       m2.sort();
       assert_eq!(m, m2);
 
-      let mut m = Game::get_available_moves(Position(5, 5), Some(Piece::Rook(Colour::White)));
+      let mut m = Game::get_all_moves(Position(5, 5), Some(Piece::Rook(Colour::White)));
       let mut m2 = vec![];
       for i in 6..=7 {
         m2.push(Position(i, 5))
@@ -119,7 +119,7 @@ mod tests {
       m2.sort();
       assert_eq!(m, m2);
 
-      let mut m = Game::get_available_moves(Position(7, 7), Some(Piece::Rook(Colour::Black)));
+      let mut m = Game::get_all_moves(Position(7, 7), Some(Piece::Rook(Colour::Black)));
       let mut m2 = vec![];
       for i in 0..=6 {
         m2.push(Position(i, 7));
@@ -128,6 +128,15 @@ mod tests {
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
+    }
+
+    #[test]
+    fn filtered_rook_moves() {
+      let game = Game::new();
+      let all_moves = Game::get_all_moves(Position(0, 0), Some(Piece::Rook(Colour::White)));
+      let moves = game.filter_moves(Some(Piece::Rook(Colour::White)), all_moves);
+
+      assert_eq!(moves, vec![]);
     }
   }
 }
@@ -166,7 +175,24 @@ impl Piece {
     //     }
     // }
 
-    // ...
+    pub fn get_colour(&self) -> Colour {
+      // figure out how to pattern match the piece kind
+      // because this is uuuuuugly
+      match self {
+        Piece::Pawn(Colour::White) => Colour::White,
+        Piece::Pawn(Colour::Black) => Colour::Black,
+        Piece::Rook(Colour::White) => Colour::White,
+        Piece::Rook(Colour::Black) => Colour::Black,
+        Piece::Knight(Colour::White) => Colour::White,
+        Piece::Knight(Colour::Black) => Colour::Black,
+        Piece::Bishop(Colour::White) => Colour::White,
+        Piece::Bishop(Colour::Black) => Colour::Black,
+        Piece::Queen(Colour::White) => Colour::White,
+        Piece::Queen(Colour::Black) => Colour::Black,
+        Piece::King(Colour::White) => Colour::White,
+        Piece::King(Colour::Black) => Colour::Black,
+      }
+    }
 }
 
 #[derive(Debug)]
@@ -305,12 +331,13 @@ impl Game {
         // hitta alla moves
         // filtrera ifall nagot ar i vagen
         let position = Game::parse_string(_position);
-        let piece = self.board[position.0][position.1];
-        println!("{:?}", piece);
+        let moving_piece = self.board[position.0][position.1];
+        println!("{:?}", moving_piece);
 
-        let moves = Game::get_available_moves(position, piece);
+        let all_moves = Game::get_all_moves(position, moving_piece);
 
         // filter the moves here
+        let moves = Game::filter_moves(self, moving_piece, all_moves);
 
         let mut str_moves = vec![]; // vec![String::from("c1"), String::from("d1")];
 
@@ -322,7 +349,50 @@ impl Game {
         //Some(vec![String::from("yo")])
     }
 
-    fn get_available_moves(position: Position, piece: Option<Piece>) -> Vec<Position> {
+    fn filter_moves(&self, moving_piece: Option<Piece>, all_moves: Vec<Position>) -> Vec<Position> {
+      // for every move, check if spot is taken
+      // if taken and same colour -> not possible move
+      // if taken and diff colour -> possible move
+
+      match moving_piece {
+        Some(Piece::Rook(_)) => {
+          // check front
+          
+          // check back
+          // check right
+          // check left
+        },
+        None => panic!("trying to move a None piece"),
+
+      }
+
+
+      let mut moves = vec![];
+      for mv in &all_moves {
+        let piece = self.board[mv.0][mv.1];
+        match piece {
+          None => {
+            // can always move to a None tile
+            moves.push(mv)
+          },
+          Some(attacked_piece) => {
+            match moving_piece {
+              Some(attacking_piece) => {
+                if attacked_piece.get_colour() != attacking_piece.get_colour() {
+                  moves.push(mv);
+                }
+              }
+              None => panic!("trying to move a None piece"),
+            }
+          }
+        }
+      }
+
+      all_moves
+    }
+
+    // memoize this function
+    fn get_all_moves(position: Position, piece: Option<Piece>) -> Vec<Position> {
         let moves = match piece {
             Some(Piece::Pawn(Colour::White)) => {
                 let mut moves = vec![];
