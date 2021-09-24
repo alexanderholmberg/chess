@@ -7,7 +7,7 @@ mod tests {
     #[test]
     fn initializes_correctly() {
       //let game = Game::new();
-      let game = Game::new_fen(String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+      let game = Game::new_from_fen(String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
       assert_eq!(game.board[0][0].unwrap(), Piece::Rook(Colour::White));
       assert_eq!(game.board[0][1].unwrap(), Piece::Knight(Colour::White));
       assert_eq!(game.board[0][2].unwrap(), Piece::Bishop(Colour::White));
@@ -37,9 +37,43 @@ mod tests {
       assert_eq!(game.board[7][5].unwrap(), Piece::Bishop(Colour::Black));
       assert_eq!(game.board[7][6].unwrap(), Piece::Knight(Colour::Black));
       assert_eq!(game.board[7][7].unwrap(), Piece::Rook(Colour::Black));
-
-
       
+    }
+
+    #[test]
+    fn random_fen_inits() {
+      let game = Game::new_from_fen(String::from("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1"));
+
+      assert_eq!(game.board[0][0].unwrap(), Piece::Rook(Colour::White));
+      assert_eq!(game.board[1][3].unwrap(), Piece::Rook(Colour::White));
+      assert_eq!(game.board[6][6].unwrap(), Piece::Rook(Colour::Black));
+      assert_eq!(game.board[7][7].unwrap(), Piece::Rook(Colour::Black));
+      assert_eq!(game.board[7][6].is_none(), true);
+      assert_eq!(game.board[0][4].unwrap(), Piece::King(Colour::White));
+      assert_eq!(game.board[7][4].unwrap(), Piece::King(Colour::Black));
+      assert_eq!(game.board[0][5].is_none(), true);
+
+      let game = Game::new_from_fen(String::from("8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b - - 99 50"));
+
+      assert_eq!(game.board[2][0].unwrap(), Piece::Pawn(Colour::White));
+      assert_eq!(game.board[4][1].unwrap(), Piece::Pawn(Colour::Black));
+      assert_eq!(game.board[3][1].unwrap(), Piece::Pawn(Colour::White));
+      assert_eq!(game.board[3][0].unwrap(), Piece::Pawn(Colour::Black));
+      assert_eq!(game.board[5][3].unwrap(), Piece::Pawn(Colour::Black));
+      assert_eq!(game.board[4][4].unwrap(), Piece::Pawn(Colour::Black));
+      assert_eq!(game.board[3][5].unwrap(), Piece::Pawn(Colour::Black));
+      assert_eq!(game.board[4][3].unwrap(), Piece::Pawn(Colour::White));
+      assert_eq!(game.board[3][4].unwrap(), Piece::Pawn(Colour::White));
+      assert_eq!(game.board[2][5].unwrap(), Piece::Pawn(Colour::White));
+      assert_eq!(game.board[3][7].unwrap(), Piece::Pawn(Colour::White));
+      assert_eq!(game.board[4][7].unwrap(), Piece::Pawn(Colour::Black));
+
+      assert_eq!(game.board[2][7].unwrap(), Piece::King(Colour::White));
+      assert_eq!(game.board[6][5].unwrap(), Piece::King(Colour::Black));
+
+      assert_eq!(game.board[0][0].is_none(), true);
+      assert_eq!(game.board[7][7].is_none(), true);
+      assert_eq!(game.board[5][7].is_none(), true);
     }
 
     #[test]
@@ -247,7 +281,7 @@ impl Game {
         }
     }
 
-    pub fn new_fen(fen_string: String) -> Game {
+    pub fn new_from_fen(fen_string: String) -> Game {
         Game {
             name: String::from("yoo"),
             state: GameState::InProgress,
@@ -280,40 +314,46 @@ impl Game {
     }
 
     fn initialize_board() -> [[Option<Piece>; 8]; 8] {
-        let mut b: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
-        for row in 0..=1 {
-            for col in 0..=7 {
-                b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
-            }
-        }
-        for row in 6..=7 {
-            for col in 0..=7 {
-                b[row][col] = Some(Game::get_starting_piece_at_position(row, col));
-            }
-        }
-
-        b
+      let standard_starting_board = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      Game::initialize_board_from_fen(standard_starting_board)
     }
 
     fn initialize_board_from_fen(fen_string: String) -> [[Option<Piece>; 8]; 8] {
-      // split on / to get every line
-      // place a piece for every char
-      // 
-      let mut b: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
-      let mut sub = fen_string.split("/");
-      let mut lines = vec![];
-      for line in sub {
-        lines.push(line);
-      }
-      for i in 0..=7 {
-        for c in lines[i].chars() {
-          match c {
-            'r' => 
-          }
+      let mut board: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
+      let lines: Vec<&str> = fen_string.split(' ').collect();
+      let positions: Vec<&str> = lines[0].split('/').collect();
+      
+      let mut i = 7;
+      for row in 0..=7 {
+        let mut col = 0;
+        for ch in positions[i].chars() {
+          board[row][col] = match ch {
+            'r' => Some(Piece::Rook(Colour::Black)),
+            'n' => Some(Piece::Knight(Colour::Black)),
+            'b' => Some(Piece::Bishop(Colour::Black)),
+            'q' => Some(Piece::Queen(Colour::Black)),
+            'k' => Some(Piece::King(Colour::Black)),
+            'p' => Some(Piece::Pawn(Colour::Black)),
+            'R' => Some(Piece::Rook(Colour::White)),
+            'N' => Some(Piece::Knight(Colour::White)),
+            'B' => Some(Piece::Bishop(Colour::White)),
+            'Q' => Some(Piece::Queen(Colour::White)),
+            'K' => Some(Piece::King(Colour::White)),
+            'P' => Some(Piece::Pawn(Colour::White)),
+            _ => {
+              col += ch.to_digit(10).unwrap() as usize - 1;
+              None
+            }
+          };
+          col += 1;
+        }
+        
+        if i != 0 {
+          i -= 1;    
         }
       }
 
-      _
+      board
     }
 
     // if illegal -> return Err
