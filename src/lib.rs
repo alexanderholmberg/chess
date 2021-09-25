@@ -241,9 +241,9 @@ impl Game {
           Piece::Pawn(_) => self.get_pawn_moves(position, piece),
           Piece::Rook(_) => self.get_rook_moves(position, piece),
           Piece::Knight(_) => self.get_knight_moves(position, piece),
-          Piece::Bishop(Colour::White) => self.get_bishop_moves(position, piece),
+          Piece::Bishop(_) => self.get_bishop_moves(position, piece),
+          Piece::Queen(_) => self.get_queen_moves(position, piece),
           _ => vec![]
-          // Some(Piece::Queen(Colour::White)) => {},
           // Some(Piece::King(Colour::White)) => {},
           // Some(Piece::Pawn(Colour::Black)) => {},
           // Some(Piece::Knight(Colour::Black)) => {},
@@ -488,6 +488,28 @@ impl Game {
     // top right
 
     // bottom right
+
+    moves
+  }
+
+  fn get_queen_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
+    let mut moves = vec![];
+
+    // left
+
+    // top left
+
+    // top
+
+    // top right
+
+    // right
+
+    // down right
+
+    // down
+
+    // down left
 
     moves
   }
