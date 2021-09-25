@@ -281,5 +281,45 @@ mod tests {
       m2.sort();
       assert_eq!(m, m2);
     }
+
+    #[test]
+    fn bishop_moves() {
+      let game = Game::new();
+      let mut m = game.get_all_moves(Position(0, 2), Piece::Bishop(Colour::White));
+      let mut m2 = vec![];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 b - - 0 1",
+      ));
+      let mut m = game.get_all_moves(Position(5, 3), Piece::Bishop(Colour::White));
+      let mut m2 = vec![
+        Position(4, 2),
+        Position(3, 1),
+        Position(2, 0),
+        Position(6, 2),
+        Position(7, 1),
+        Position(6, 4),
+        Position(7, 5),
+      ];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let mut m = game.get_all_moves(Position(0, 6), Piece::Bishop(Colour::Black));
+      let mut m2 = vec![
+        Position(1, 5),
+        Position(2, 4),
+        Position(3, 3),
+        Position(4, 2),
+        Position(5, 1),
+        Position(1, 7),
+      ];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+    }
   }
 }

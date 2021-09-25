@@ -480,6 +480,15 @@ impl Game {
 
   fn get_bishop_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
     let mut moves = vec![];
+
+    // bottom left
+
+    // top left
+
+    // top right
+
+    // bottom right
+
     moves
   }
 
