@@ -478,16 +478,113 @@ impl Game {
     moves
   }
 
+  fn check_if_legal(&self, i: usize, j: usize, piece: Piece) -> (bool, bool) {
+    let mut should_break = false;
+    let mut should_add = false;
+
+    match self.board[i][j] {
+      Some(attacked_piece) => {
+        if attacked_piece.get_colour() != piece.get_colour() {
+          should_add = true;
+        }
+        should_break = true;
+      }
+      None => should_add = true,
+    }
+
+    (should_add, should_break)
+  }
+
   fn get_bishop_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
     let mut moves = vec![];
 
     // bottom left
+    if position.0 > 0 && position.1 > 0 {
+      let mut i = position.0;
+      let mut j = position.1;
+      loop {
+        i -= 1;
+        j -= 1;
+
+        let (should_add, should_break) = self.check_if_legal(i, j, piece);
+        if should_add {
+          moves.push(Position(i, j));
+        }
+        if should_break {
+          break;
+        }
+
+        if i == 0 || j == 0 {
+          break;
+        }
+      }
+    }
 
     // top left
+    if position.0 < 7 && position.1 > 0 {
+      let mut i = position.0;
+      let mut j = position.1;
+      loop {
+        i += 1;
+        j -= 1;
+
+        let (should_add, should_break) = self.check_if_legal(i, j, piece);
+        if should_add {
+          moves.push(Position(i, j));
+        }
+        if should_break {
+          break;
+        }
+
+        if i == 7 || j == 0 {
+          break;
+        }
+      }
+    }
 
     // top right
+    if position.0 < 7 && position.1 > 0 {
+      let mut i = position.0;
+      let mut j = position.1;
+      loop {
+        i += 1;
+        j += 1;
+
+        let (should_add, should_break) = self.check_if_legal(i, j, piece);
+        if should_add {
+          moves.push(Position(i, j));
+        }
+        if should_break {
+          break;
+        }
+
+        if i == 7 || j == 7 {
+          break;
+        }
+      }
+    }
 
     // bottom right
+    if position.0 > 0 && position.1 < 7 {
+      let mut i = position.0;
+      let mut j = position.1;
+      loop {
+        i -= 1;
+        j += 1;
+
+        let (should_add, should_break) = self.check_if_legal(i, j, piece);
+        if should_add {
+          moves.push(Position(i, j));
+        }
+        if should_break {
+          break;
+        }
+
+        if i == 0 || j == 7 {
+          break;
+        }
+      }
+    }
 
     moves
   }
