@@ -226,13 +226,59 @@ mod tests {
     #[test]
     fn knight_moves() {
       let game = Game::new();
-      let m = game.get_all_moves(Position(3, 3), Piece::Knight(Colour::White));
-      let m2 = vec![
+      let mut m = game.get_all_moves(Position(3, 3), Piece::Knight(Colour::White));
+      let mut m2 = vec![
         Position(5, 2),
         Position(5, 4),
         Position(4, 1),
         Position(2, 1),
+        Position(2, 5),
+        Position(4, 5),
       ];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+      let mut m = game.get_all_moves(Position(7, 6), Piece::Knight(Colour::Black));
+      let mut m2 = vec![Position(5, 7), Position(5, 5)];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/1n1B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 b - - 0 1",
+      ));
+      let mut m = game.get_all_moves(Position(4, 3), Piece::Knight(Colour::White));
+      let mut m2 = vec![
+        Position(5, 1),
+        Position(3, 1),
+        Position(6, 2),
+        Position(6, 4),
+        Position(5, 5),
+        Position(3, 5),
+        Position(2, 4),
+        Position(2, 2),
+      ];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let mut m = game.get_all_moves(Position(5, 1), Piece::Knight(Colour::Black));
+      let mut m2 = vec![Position(3, 0), Position(3, 2), Position(4, 3)];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/3B4/1p1NP2P/6P1/3P1Q2/PnP1K3/q5b1 b - - 0 1",
+      ));
+      let mut m = game.get_all_moves(Position(1, 1), Piece::Knight(Colour::Black));
+      let mut m2 = vec![
+        Position(3, 0),
+        Position(3, 2),
+        Position(2, 3),
+        Position(0, 3),
+      ];
+      m.sort();
+      m2.sort();
       assert_eq!(m, m2);
     }
   }

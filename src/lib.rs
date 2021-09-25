@@ -238,17 +238,11 @@ impl Game {
   // should I filter moves here or not? probably
   fn get_all_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
     let moves = match piece {
-          Piece::Pawn(_) => {
-              self.get_pawn_moves(position, piece)
-          },
-          Piece::Rook(_) => {
-            self.get_rook_moves(position, piece)
-          },
-          Piece::Knight(_) => {
-            self.get_knight_moves(position, piece)
-          },
+          Piece::Pawn(_) => self.get_pawn_moves(position, piece),
+          Piece::Rook(_) => self.get_rook_moves(position, piece),
+          Piece::Knight(_) => self.get_knight_moves(position, piece),
+          Piece::Bishop(Colour::White) => self.get_bishop_moves(position, piece),
           _ => vec![]
-          // Some(Piece::Bishop(Colour::White)) => {},
           // Some(Piece::Queen(Colour::White)) => {},
           // Some(Piece::King(Colour::White)) => {},
           // Some(Piece::Pawn(Colour::Black)) => {},
@@ -354,7 +348,6 @@ impl Game {
     // every tile forward (whites perspective)
     if position.0 < 7 {
       for i in (position.0 + 1)..=7 {
-        // if hit -> check color
         match self.board[i][position.1] {
           Some(attacked_piece) => {
             if attacked_piece.get_colour() != piece.get_colour() {
@@ -454,6 +447,39 @@ impl Game {
       }
     }
 
+    // down left move
+    if position.1 > 0 && position.0 > 1 {
+      if Game::is_legal(self.board[position.0 - 2][position.1 - 1], piece) {
+        moves.push(Position(position.0 - 2, position.1 - 1));
+      }
+    }
+
+    // down right move
+    if position.1 < 7 && position.0 > 1 {
+      if Game::is_legal(self.board[position.0 - 2][position.1 + 1], piece) {
+        moves.push(Position(position.0 - 2, position.1 + 1));
+      }
+    }
+
+    // right down move
+    if position.1 < 6 && position.0 > 0 {
+      if Game::is_legal(self.board[position.0 - 1][position.1 + 2], piece) {
+        moves.push(Position(position.0 - 1, position.1 + 2));
+      }
+    }
+
+    // right up move
+    if position.1 < 6 && position.0 < 7 {
+      if Game::is_legal(self.board[position.0 + 1][position.1 + 2], piece) {
+        moves.push(Position(position.0 + 1, position.1 + 2));
+      }
+    }
+
+    moves
+  }
+
+  fn get_bishop_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
+    let mut moves = vec![];
     moves
   }
 
