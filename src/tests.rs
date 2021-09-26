@@ -411,6 +411,27 @@ mod tests {
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
+
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 b - - 0 1",
+      ));
+      let mut m = game.get_all_moves(Position(1, 4), Piece::King(Colour::White));
+      let mut m2 = vec![
+        Position(1, 3),
+        Position(2, 4),
+        Position(1, 5),
+        Position(0, 5),
+        Position(0, 4),
+        Position(0, 3),
+      ];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+      let mut m = game.get_all_moves(Position(7, 4), Piece::King(Colour::Black));
+      let mut m2 = vec![Position(7, 3), Position(7, 5), Position(6, 4)];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
     }
   }
 }

@@ -427,16 +427,53 @@ impl Game {
   fn get_king_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
     let mut moves = vec![];
     // left
-    //if position.1 > 0 {
-    //  self.is_legal()
-    //}
+    if position.1 > 0 {
+      if Game::is_legal(self.board[position.0][position.1 - 1], piece) {
+        moves.push(Position(position.0, position.1 - 1));
+      }
+    }
     // top left
+    if position.0 < 7 && position.1 > 0 {
+      if Game::is_legal(self.board[position.0 + 1][position.1 - 1], piece) {
+        moves.push(Position(position.0 + 1, position.1 - 1));
+      }
+    }
     // top
+    if position.0 < 7 {
+      if Game::is_legal(self.board[position.0 + 1][position.1], piece) {
+        moves.push(Position(position.0 + 1, position.1));
+      }
+    }
     // top right
+    if position.0 < 7 && position.1 < 7 {
+      if Game::is_legal(self.board[position.0 + 1][position.1 + 1], piece) {
+        moves.push(Position(position.0 + 1, position.1 + 1));
+      }
+    }
     // right
+    if position.1 < 7 {
+      if Game::is_legal(self.board[position.0][position.1 + 1], piece) {
+        moves.push(Position(position.0, position.1 + 1));
+      }
+    }
     // down right
+    if position.0 > 0 && position.1 < 7 {
+      if Game::is_legal(self.board[position.0 - 1][position.1 + 1], piece) {
+        moves.push(Position(position.0 - 1, position.1 + 1));
+      }
+    }
     // down
+    if position.0 > 0 {
+      if Game::is_legal(self.board[position.0 - 1][position.1], piece) {
+        moves.push(Position(position.0 - 1, position.1));
+      }
+    }
     // down left
+    if position.0 > 0 && position.1 > 0 {
+      if Game::is_legal(self.board[position.0 - 1][position.1 - 1], piece) {
+        moves.push(Position(position.0 - 1, position.1 - 1));
+      }
+    }
     moves
   }
 
@@ -616,20 +653,4 @@ impl Game {
 
     (should_add, should_break)
   }
-  // fn is_legal_in_loop(&self, i: usize, j: usize, piece: Piece) -> (bool, bool) {
-  //   let mut should_break = false;
-  //   let mut should_add = false;
-
-  //   match self.board[i][j] {
-  //     Some(attacked_piece) => {
-  //       if attacked_piece.get_colour() != piece.get_colour() {
-  //         should_add = true;
-  //       }
-  //       should_break = true;
-  //     }
-  //     None => should_add = true,
-  //   }
-
-  //   (should_add, should_break)
-  // }
 }
