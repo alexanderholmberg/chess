@@ -340,9 +340,22 @@ mod tests {
       m.sort();
       m2.sort();
       assert_eq!(m, m2);
+
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/b5q1 b - - 0 1",
+      ));
+      let mut m = game.get_all_moves(Position(0, 0), Piece::Bishop(Colour::Black));
+      let mut m2 = [
+        Position(1, 1),
+        Position(2, 2),
+        Position(3, 3),
+        Position(4, 4),
+      ];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
     }
     #[test]
-    #[ignore]
     fn queen_moves() {
       let game = Game::new();
       let mut m = game.get_all_moves(Position(0, 3), Piece::Queen(Colour::White));
@@ -358,9 +371,10 @@ mod tests {
       let mut m2 = vec![
         Position(2, 4),
         Position(3, 4),
-        Position(4, 4),
-        Position(5, 4),
-        Position(6, 4),
+        Position(3, 5),
+        Position(4, 5),
+        Position(5, 5),
+        Position(6, 5),
         Position(2, 6),
         Position(2, 7),
         Position(1, 6),
@@ -378,6 +392,7 @@ mod tests {
         Position(1, 1),
         Position(2, 2),
         Position(3, 3),
+        Position(4, 4),
         Position(0, 1),
         Position(0, 2),
         Position(0, 3),
