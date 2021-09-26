@@ -27,13 +27,6 @@ pub enum Piece {
 }
 
 impl Piece {
-  // fn take_turn(&self, /*...*/) -> /*...*/ {
-  //     match self {
-  //         Piece::King(_colour) => /*...*/,
-  //         // ...
-  //     }
-  // }
-
   pub fn get_colour(&self) -> Colour {
     // figure out how to pattern match the piece kind
     // because this is uuuuuugly
@@ -147,25 +140,46 @@ impl Game {
     board
   }
 
+  pub fn print_board(&self) {
+    println!();
+    for row in self.board.iter().rev() {
+      for piece in row {
+        // turn piece from Option to beautiful ascii chess pieces
+        print!("{:?}", piece);
+      }
+      println!();
+    }
+    println!();
+  }
+
   // if illegal -> return Err
   // if legal and InProgress is true -> return the current state of the game
   // example position = "a5"
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
-    // parse position to a row and col
-    // check if it's a legal move
-    // make the move by updating the board
-    // return the current state
+    let old_position = Game::parse_string(&_from);
+    let new_position = Game::parse_string(&_to);
+    let moving_piece = self.board[old_position.0][old_position.1].expect("Can't move a None piece");
 
-    //let moves = Game::get_possible_moves(self, _from);
-    let from = Game::parse_string(_from);
+    // check if _to is in moves
+    match Game::get_possible_moves(self, moving_piece, _from) {
+      Some(moves) => {
+        for mv in moves {
+          if mv == _to {
+            // move piece to new spot
+            self.board[new_position.0][new_position.1] = Some(moving_piece);
+            // Place a None on previous spot
+            self.board[old_position.0][old_position.1] = None;
+            break;
+          }
+        }
+      }
+      None => {}
+    }
 
-    let to = Game::parse_string(_to);
-
-    //let possible_moves = get_possible_moves(self, from);
     Some(GameState::InProgress)
   }
 
-  fn parse_string(position: String) -> Position {
+  fn parse_string(position: &String) -> Position {
     // turn string into two chars
     // match the first one with a num
     // parse the other one - 1 to a int
@@ -218,15 +232,12 @@ impl Game {
     &self.state
   }
 
-  // // given position, returns all possible moves for the piece
-  pub fn get_possible_moves(&self, _position: String) -> Option<Vec<String>> {
-    // find ALL moves for a piece
-    let position = Game::parse_string(_position);
-    let moving_piece = self.board[position.0][position.1];
-    let moving_piece = moving_piece.expect("can't move a None piece");
+  // given position, returns all possible moves for the piece
+  pub fn get_possible_moves(&self, moving_piece: Piece, _position: String) -> Option<Vec<String>> {
+    let position = Game::parse_string(&_position);
     let all_moves = Game::get_all_moves(self, position, moving_piece);
 
-    let mut str_moves = vec![]; // vec![String::from("c1"), String::from("d1")];
+    let mut str_moves = vec![];
     for mv in all_moves {
       str_moves.push(Game::parse_coordinates(mv));
     }
@@ -238,20 +249,13 @@ impl Game {
   // should I filter moves here or not? probably
   fn get_all_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
     let moves = match piece {
-          Piece::Pawn(_) => self.get_pawn_moves(position, piece),
-          Piece::Rook(_) => self.get_rook_moves(position, piece),
-          Piece::Knight(_) => self.get_knight_moves(position, piece),
-          Piece::Bishop(_) => self.get_bishop_moves(position, piece),
-          Piece::Queen(_) => self.get_queen_moves(position, piece),
-          Piece::King(_) => self.get_king_moves(position, piece),
-          _ => vec![]
-          // Some(Piece::Pawn(Colour::Black)) => {},
-          // Some(Piece::Knight(Colour::Black)) => {},
-          // Some(Piece::Bishop(Colour::Black)) => {},
-          // Some(Piece::Queen(Colour::Black)) => {},
-          // Some(Piece::King(Colour::Black)) => {},
-          // None => {},
-      };
+      Piece::Pawn(_) => self.get_pawn_moves(position, piece),
+      Piece::Rook(_) => self.get_rook_moves(position, piece),
+      Piece::Knight(_) => self.get_knight_moves(position, piece),
+      Piece::Bishop(_) => self.get_bishop_moves(position, piece),
+      Piece::Queen(_) => self.get_queen_moves(position, piece),
+      Piece::King(_) => self.get_king_moves(position, piece),
+    };
 
     moves
   }
