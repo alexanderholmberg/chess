@@ -45,6 +45,23 @@ impl Piece {
       Piece::King(Colour::Black) => Colour::Black,
     }
   }
+
+  fn to_ascii(&self) -> char {
+    match self {
+      Piece::Pawn(Colour::White) => '\u{2659}',
+      Piece::Rook(Colour::White) => '\u{2656}',
+      Piece::Knight(Colour::White) => '\u{2658}',
+      Piece::Bishop(Colour::White) => '\u{2657}',
+      Piece::Queen(Colour::White) => '\u{2655}',
+      Piece::King(Colour::White) => '\u{2654}',
+      Piece::Pawn(Colour::Black) => '\u{265F}',
+      Piece::Rook(Colour::Black) => '\u{265C}',
+      Piece::Knight(Colour::Black) => '\u{265E}',
+      Piece::Bishop(Colour::Black) => '\u{265D}',
+      Piece::Queen(Colour::Black) => '\u{265B}',
+      Piece::King(Colour::Black) => '\u{265A}',
+    }
+  }
 }
 
 #[derive(Debug)]
@@ -142,10 +159,14 @@ impl Game {
 
   pub fn print_board(&self) {
     println!();
-    for row in self.board.iter().rev() {
-      for piece in row {
+    for row in self.board.iter() {
+      for maybe_piece in row {
         // turn piece from Option to beautiful ascii chess pieces
-        print!("{:?}", piece);
+        let c = match maybe_piece {
+          Some(piece) => piece.to_ascii(),
+          None => ' ',
+        };
+        print!("{:?}", c);
       }
       println!();
     }
