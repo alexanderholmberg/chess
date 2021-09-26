@@ -403,5 +403,14 @@ mod tests {
       m2.sort();
       assert_eq!(m, m2);
     }
+    #[test]
+    fn king_moves() {
+      let game = Game::new();
+      let mut m = game.get_all_moves(Position(0, 4), Piece::King(Colour::White));
+      let mut m2 = vec![];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+    }
   }
 }

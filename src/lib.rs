@@ -243,8 +243,8 @@ impl Game {
           Piece::Knight(_) => self.get_knight_moves(position, piece),
           Piece::Bishop(_) => self.get_bishop_moves(position, piece),
           Piece::Queen(_) => self.get_queen_moves(position, piece),
+          Piece::King(_) => self.get_king_moves(position, piece),
           _ => vec![]
-          // Some(Piece::King(Colour::White)) => {},
           // Some(Piece::Pawn(Colour::Black)) => {},
           // Some(Piece::Knight(Colour::Black)) => {},
           // Some(Piece::Bishop(Colour::Black)) => {},
@@ -424,6 +424,22 @@ impl Game {
     diagonal_moves
   }
 
+  fn get_king_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
+    let mut moves = vec![];
+    // left
+    //if position.1 > 0 {
+    //  self.is_legal()
+    //}
+    // top left
+    // top
+    // top right
+    // right
+    // down right
+    // down
+    // down left
+    moves
+  }
+
   fn diagonal_slides(&self, position: Position, piece: Piece) -> Vec<Position> {
     // bottom left
     let mut moves = vec![];
@@ -434,7 +450,7 @@ impl Game {
         i -= 1;
         j -= 1;
 
-        let (should_add, should_break) = self.is_legal_in_loop(i, j, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[i][j], piece);
         if should_add {
           moves.push(Position(i, j));
         }
@@ -456,7 +472,7 @@ impl Game {
         i += 1;
         j -= 1;
 
-        let (should_add, should_break) = self.is_legal_in_loop(i, j, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[i][j], piece);
         if should_add {
           moves.push(Position(i, j));
         }
@@ -478,7 +494,7 @@ impl Game {
         i += 1;
         j += 1;
 
-        let (should_add, should_break) = self.is_legal_in_loop(i, j, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[i][j], piece);
         if should_add {
           moves.push(Position(i, j));
         }
@@ -500,7 +516,7 @@ impl Game {
         i -= 1;
         j += 1;
 
-        let (should_add, should_break) = self.is_legal_in_loop(i, j, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[i][j], piece);
         if should_add {
           moves.push(Position(i, j));
         }
@@ -522,7 +538,7 @@ impl Game {
     // every tile forward (whites perspective)
     if position.0 < 7 {
       for i in (position.0 + 1)..=7 {
-        let (should_add, should_break) = self.is_legal_in_loop(i, position.1, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[i][position.1], piece);
         if should_add {
           moves.push(Position(i, position.1));
         }
@@ -534,7 +550,7 @@ impl Game {
     // every tile backward
     if position.0 > 0 {
       for i in (0..=position.0 - 1).rev() {
-        let (should_add, should_break) = self.is_legal_in_loop(i, position.1, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[i][position.1], piece);
         if should_add {
           moves.push(Position(i, position.1));
         }
@@ -546,7 +562,7 @@ impl Game {
     // every tile to right
     if position.1 < 7 {
       for i in (position.1 + 1)..=7 {
-        let (should_add, should_break) = self.is_legal_in_loop(position.0, i, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[position.0][i], piece);
         if should_add {
           moves.push(Position(position.0, i));
         }
@@ -558,7 +574,7 @@ impl Game {
     // every tile to left
     if position.1 > 0 {
       for i in (0..=(position.1 - 1)).rev() {
-        let (should_add, should_break) = self.is_legal_in_loop(position.0, i, piece);
+        let (should_add, should_break) = Game::is_legal_in_loop(self.board[position.0][i], piece);
         if should_add {
           moves.push(Position(position.0, i));
         }
@@ -571,8 +587,8 @@ impl Game {
     moves
   }
 
-  fn is_legal(tile: Option<Piece>, piece: Piece) -> bool {
-    match tile {
+  fn is_legal(attacked_position: Option<Piece>, piece: Piece) -> bool {
+    match attacked_position {
       Some(attacked_piece) => {
         if attacked_piece.get_colour() != piece.get_colour() {
           true
@@ -584,11 +600,11 @@ impl Game {
     }
   }
 
-  fn is_legal_in_loop(&self, i: usize, j: usize, piece: Piece) -> (bool, bool) {
+  fn is_legal_in_loop(attacked_position: Option<Piece>, piece: Piece) -> (bool, bool) {
     let mut should_break = false;
     let mut should_add = false;
 
-    match self.board[i][j] {
+    match attacked_position {
       Some(attacked_piece) => {
         if attacked_piece.get_colour() != piece.get_colour() {
           should_add = true;
@@ -600,4 +616,20 @@ impl Game {
 
     (should_add, should_break)
   }
+  // fn is_legal_in_loop(&self, i: usize, j: usize, piece: Piece) -> (bool, bool) {
+  //   let mut should_break = false;
+  //   let mut should_add = false;
+
+  //   match self.board[i][j] {
+  //     Some(attacked_piece) => {
+  //       if attacked_piece.get_colour() != piece.get_colour() {
+  //         should_add = true;
+  //       }
+  //       should_break = true;
+  //     }
+  //     None => should_add = true,
+  //   }
+
+  //   (should_add, should_break)
+  // }
 }
