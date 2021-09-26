@@ -495,10 +495,9 @@ impl Game {
     (should_add, should_break)
   }
 
-  fn get_bishop_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
-    let mut moves = vec![];
-
+  fn diagonal_slides(&self, position: Position, piece: Piece) -> Vec<Position> {
     // bottom left
+    let mut moves = vec![];
     if position.0 > 0 && position.1 > 0 {
       let mut i = position.0;
       let mut j = position.1;
@@ -586,6 +585,11 @@ impl Game {
       }
     }
 
+    moves
+  }
+
+  fn get_bishop_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
+    let moves = self.diagonal_slides(position, piece);
     moves
   }
 
