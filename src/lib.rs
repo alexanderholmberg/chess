@@ -1,3 +1,5 @@
+use std::io;
+
 mod tests;
 
 #[derive(Debug, PartialEq)]
@@ -66,6 +68,7 @@ impl Piece {
 
 #[derive(Debug)]
 pub struct Game {
+  pub whites_turn: bool,
   pub state: GameState,
   pub name: String,
   pub board: [[Option<Piece>; 8]; 8],
@@ -75,6 +78,7 @@ impl Game {
   // creates a new game
   pub fn new() -> Game {
     Game {
+      whites_turn: true,
       name: String::from("yoo"),
       state: GameState::InProgress,
       board: Game::initialize_board(),
@@ -83,6 +87,7 @@ impl Game {
 
   pub fn new_from_fen(fen_string: String) -> Game {
     Game {
+      whites_turn: true,
       name: String::from("yoo"),
       state: GameState::InProgress,
       board: Game::initialize_board_from_fen(fen_string),
@@ -173,9 +178,20 @@ impl Game {
     println!();
   }
 
+  pub fn get_all_tiles() -> Vec<String> {
+    let mut tiles = vec![];
+    for i in 0..=7 {
+      for j in 0..=7 {
+        tiles.push(Game::parse_coordinates(Position(i, j)));
+      }
+    }
+    tiles
+  }
+
   // if illegal -> return Err
   // if legal and InProgress is true -> return the current state of the game
   // example position = "a5"
+  // should return err if illegal move
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
     let old_position = Game::parse_string(&_from);
     let new_position = Game::parse_string(&_to);
@@ -190,6 +206,7 @@ impl Game {
             self.board[new_position.0][new_position.1] = Some(moving_piece);
             // Place a None on previous spot
             self.board[old_position.0][old_position.1] = None;
+            self.whites_turn = !self.whites_turn;
             break;
           }
         }
