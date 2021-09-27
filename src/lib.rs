@@ -159,7 +159,7 @@ impl Game {
 
   pub fn print_board(&self) {
     println!();
-    for row in self.board.iter() {
+    for row in self.board.iter().rev() {
       for maybe_piece in row {
         // turn piece from Option to beautiful ascii chess pieces
         let c = match maybe_piece {
