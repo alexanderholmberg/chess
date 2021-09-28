@@ -1,7 +1,7 @@
 use std::io;
 mod tests;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum GameState {
   InProgress,
   Check,
@@ -256,6 +256,10 @@ impl Game {
     tiles
   }
 
+  // fn removes_check(&self, mv: String) -> bool {
+  //   false
+  // }
+
   // returns Some(GameState) if move is possible, else None
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
     let old_position = Game::parse_string(&_from);
@@ -267,7 +271,15 @@ impl Game {
     }
 
     let mut make_move = false;
-    match Game::get_possible_moves(self, _from) {
+    let mut possible_moves = Game::get_possible_moves(self, _from);
+    if self.state == GameState::Check {
+      // only keep moves that removes the check
+      // 1. make move
+      // 2. see if check is gone by calling check()
+      // 3. roll back move
+    }
+
+    match possible_moves {
       Some(moves) => {
         for mv in moves {
           if mv == _to {
@@ -277,33 +289,63 @@ impl Game {
         }
         if make_move {
           // check for check here
-          // cannot move into check
+          // can't move into check
+          // 1. make move
+          // 2. see if player is in check by calling check()
+          // 3. roll back move
           self.board[new_position.0][new_position.1] = Some(moving_piece);
           self.board[old_position.0][old_position.1] = None;
           self.turn = match self.turn {
             Colour::White => Colour::Black,
             Colour::Black => Colour::White,
           };
-        } else {
-          return None;
         }
       }
       None => {}
     }
 
-    // check for check
-    if self.check_for_check(moving_piece, old_position, new_position) {
-      self.state = GameState::Check;
-      return Some(GameState::Check);
+    // if self.check_for_check(moving_piece, old_position, new_position) {
+    //   self.state = GameState::Check;
+    // }
+
+    if moving_piece.get_colour() == Colour::White {
+      if self.check(String::from("black")) {
+        self.state = GameState::Check;
+      }
+    } else {
+      if self.check(String::from("white")) {
+        self.state = GameState::Check;
+      }
     }
 
-    Some(GameState::InProgress)
+    Some(self.state)
+  }
+
+  fn check(&self, possibly_checked_color: String) -> bool {
+    if possibly_checked_color == "white" {
+      let king_position = self.get_king(String::from("white"));
+      // scan for pawn attacks
+      // scan for rook attacks
+      // scan for knight attacks
+      // scan for bishop attacks
+      // scan for queen attacks
+      // scan for king attacks
+    } else {
+      let king_position = self.get_king(String::from("black"));
+      // scan for pawn attacks
+      // scan for rook attacks
+      // scan for knight attacks
+      // scan for bishop attacks
+      // scan for queen attacks
+      // scan for king attacks
+    }
+
+    false
   }
 
   fn check_for_check(&self, attacking_piece: Piece, origin: Position, target: Position) -> bool {
     // check if the piece on the target square can attack the king
     // or if any piece on the origin ray can
-    // locate opposing king
 
     let king_position = match attacking_piece.get_colour() {
       Colour::White => self.get_king(String::from("black")),
@@ -416,8 +458,6 @@ impl Game {
     Some(str_moves)
   }
 
-  // memoize this function
-  // should I filter moves here or not? probably
   fn get_all_moves(&self, position: Position, piece: Piece) -> Vec<Position> {
     let moves = match piece {
       Piece::Pawn(_) => self.get_pawn_moves(position, piece),

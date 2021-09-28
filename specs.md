@@ -1,5 +1,7 @@
 # todo
 
+- fen parser
+
 - check
 - promotion
 

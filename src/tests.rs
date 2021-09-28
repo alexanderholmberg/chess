@@ -614,6 +614,29 @@ mod tests {
       assert_eq!(game.state, GameState::Check);
       game.make_move(String::from("d6"), String::from("c5"));
       assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("e6"), String::from("c6"));
+      assert_eq!(game.state, GameState::Check);
+    }
+
+    #[test]
+    fn moves_in_check() {
+      let game = Game::new_from_fen(String::from(
+        "rnbq1bnr/ppp2ppp/2Q5/1BkP4/5p2/8/PPPP2PP/RNB1K1NR b KQ - 5 7",
+      ));
+      let mut m = game.get_all_moves(Position(4, 2), Piece::King(Colour::Black));
+      let mut m2 = vec![Position(3, 1), Position(3, 3)];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let game = Game::new_from_fen(String::from(
+        "rnNq1bnr/p1pP1ppp/k3Q3/8/8/PP3p2/2PPN1PP/R1B1K2R b KQ - 0 17",
+      ));
+      let mut m = game.get_all_moves(Position(5, 0), Piece::King(Colour::Black));
+      let mut m2 = vec![Position(6, 1), Position(4, 0), Position(4, 1)];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
     }
   }
 }
