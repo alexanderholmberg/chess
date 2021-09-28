@@ -1,17 +1,18 @@
+use alholmbe_chess::Colour;
 use alholmbe_chess::Game;
 use std::io;
 
 fn main() {
   let mut game = Game::new();
-
-  println!("Guess the number!");
-
   loop {
-    if game.whites_turn {
-      println!("move for white (from, to) EXAMPLE a2a4: ");
-    } else {
-      println!("move for black (from, to) EXAMPLE a7a5: ");
-    }
+    match game.turn {
+      Colour::White => {
+        println!("move for white (from, to) EXAMPLE a2a4: ");
+      }
+      Colour::Black => {
+        println!("move for black (from, to) EXAMPLE a7a5: ");
+      }
+    };
 
     let mut mv = String::new();
 
@@ -45,8 +46,13 @@ fn main() {
 
     println!("from: {}, to: {}", from, to);
 
-    // this needs to return an err or something if the move is not made
-    game.make_move(from, to);
+    match game.make_move(from, to) {
+      Some(_) => {}
+      None => {
+        println!("illegal move!");
+        continue;
+      }
+    }
     game.print_board();
   }
 }

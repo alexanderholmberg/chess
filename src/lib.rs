@@ -68,7 +68,7 @@ impl Piece {
 
 #[derive(Debug)]
 pub struct Game {
-  pub whites_turn: bool,
+  pub turn: Colour,
   pub state: GameState,
   pub name: String,
   pub board: [[Option<Piece>; 8]; 8],
@@ -78,7 +78,7 @@ impl Game {
   // creates a new game
   pub fn new() -> Game {
     Game {
-      whites_turn: true,
+      turn: Colour::White,
       name: String::from("yoo"),
       state: GameState::InProgress,
       board: Game::initialize_board(),
@@ -87,7 +87,7 @@ impl Game {
 
   pub fn new_from_fen(fen_string: String) -> Game {
     Game {
-      whites_turn: true,
+      turn: Colour::White,
       name: String::from("yoo"),
       state: GameState::InProgress,
       board: Game::initialize_board_from_fen(fen_string),
@@ -188,27 +188,34 @@ impl Game {
     tiles
   }
 
-  // if illegal -> return Err
-  // if legal and InProgress is true -> return the current state of the game
-  // example position = "a5"
-  // should return err if illegal move
+  // returns Some(GameState) if move is possible, else None
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
     let old_position = Game::parse_string(&_from);
     let new_position = Game::parse_string(&_to);
-    let moving_piece = self.board[old_position.0][old_position.1].expect("Can't move a None piece");
+    // Can't move a None piece
+    let moving_piece = self.board[old_position.0][old_position.1]?;
+    if moving_piece.get_colour() != self.turn {
+      return None;
+    }
 
-    // check if _to is in moves
+    let mut make_move = false;
     match Game::get_possible_moves(self, moving_piece, _from) {
       Some(moves) => {
         for mv in moves {
           if mv == _to {
-            // move piece to new spot
-            self.board[new_position.0][new_position.1] = Some(moving_piece);
-            // Place a None on previous spot
-            self.board[old_position.0][old_position.1] = None;
-            self.whites_turn = !self.whites_turn;
+            make_move = true;
             break;
           }
+        }
+        if make_move {
+          self.board[new_position.0][new_position.1] = Some(moving_piece);
+          self.board[old_position.0][old_position.1] = None;
+          self.turn = match self.turn {
+            Colour::White => Colour::Black,
+            Colour::Black => Colour::White,
+          };
+        } else {
+          return None;
         }
       }
       None => {}
