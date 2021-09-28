@@ -65,42 +65,32 @@ impl Piece {
   }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+struct Castling {
+  white_queen: bool,
+  white_king: bool,
+  black_queen: bool,
+  black_king: bool,
+}
+
 #[derive(Debug)]
 pub struct Game {
-  pub turn: Colour,
-  pub state: GameState,
-  pub name: String,
-  pub board: [[Option<Piece>; 8]; 8],
+  state: GameState,
+  name: String,
+  board: [[Option<Piece>; 8]; 8],
+  turn: Colour,
+  castling: Castling,
 }
 
 impl Game {
   // creates a new game
   pub fn new() -> Game {
-    Game {
-      turn: Colour::White,
-      name: String::from("yoo"),
-      state: GameState::InProgress,
-      board: Game::initialize_board(),
-    }
+    let standard_starting_board =
+      String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    Game::new_from_fen(standard_starting_board)
   }
 
   pub fn new_from_fen(fen_string: String) -> Game {
-    let (board, turn) = Game::initialize_board_from_fen(fen_string);
-    Game {
-      turn,
-      name: String::from("yoo"),
-      state: GameState::InProgress,
-      board,
-    }
-  }
-
-  fn initialize_board() -> [[Option<Piece>; 8]; 8] {
-    let standard_starting_board =
-      String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    Game::initialize_board_from_fen(standard_starting_board).0
-  }
-
-  fn initialize_board_from_fen(fen_string: String) -> ([[Option<Piece>; 8]; 8], Colour) {
     let mut board: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
     let lines: Vec<&str> = fen_string.split(' ').collect();
     let positions: Vec<&str> = lines[0].split('/').collect();
@@ -141,6 +131,23 @@ impl Game {
     };
 
     // println!("castling abilities = {}", lines[2]);
+    let mut castling = Castling {
+      white_queen: false,
+      white_king: false,
+      black_queen: false,
+      black_king: false,
+    };
+    println!("{}", lines[2]);
+    for c in lines[2].chars() {
+      match c {
+        '-' => break,
+        'Q' => castling.white_queen = true,
+        'K' => castling.white_king = true,
+        'q' => castling.black_queen = true,
+        'k' => castling.black_king = true,
+        _ => break,
+      };
+    }
 
     // println!("en passant targets = {}", lines[3]);
 
@@ -148,7 +155,14 @@ impl Game {
 
     // println!("fullmoves = {}", lines[5]);
 
-    (board, turn)
+    // (board, turn, castling_white, castling_black)
+    Game {
+      turn,
+      name: String::from("yoo"),
+      state: GameState::InProgress,
+      board,
+      castling,
+    }
   }
 
   fn print_board(&self) {

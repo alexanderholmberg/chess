@@ -540,4 +540,42 @@ mod tests {
       assert_eq!(m, m2);
     }
   }
+
+  mod special_rules {
+    use crate::Castling;
+    use crate::Colour;
+    use crate::Game;
+    use crate::Piece;
+    use crate::Position;
+    #[test]
+    fn castling() {
+      let game = Game::new();
+      let castling = Castling {
+        white_queen: true,
+        white_king: true,
+        black_queen: true,
+        black_king: true,
+      };
+      assert_eq!(game.castling, castling);
+
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 b - - 0 1",
+      ));
+      let castling = Castling {
+        white_queen: false,
+        white_king: false,
+        black_queen: false,
+        black_king: false,
+      };
+      assert_eq!(game.castling, castling);
+      let game = Game::new_from_fen(String::from("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1"));
+      let castling = Castling {
+        white_queen: true,
+        white_king: false,
+        black_queen: false,
+        black_king: true,
+      };
+      assert_eq!(game.castling, castling);
+    }
+  }
 }
