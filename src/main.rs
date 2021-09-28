@@ -3,6 +3,12 @@ use alholmbe_chess::Game;
 use std::io;
 
 fn main() {
+  let mut game = Game::new_from_fen(String::from(
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
+  ));
+}
+
+fn play() {
   let mut game = Game::new();
   loop {
     match game.turn {

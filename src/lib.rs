@@ -86,11 +86,12 @@ impl Game {
   }
 
   pub fn new_from_fen(fen_string: String) -> Game {
+    let (board, turn) = Game::initialize_board_from_fen(fen_string);
     Game {
-      turn: Colour::White,
+      turn,
       name: String::from("yoo"),
       state: GameState::InProgress,
-      board: Game::initialize_board_from_fen(fen_string),
+      board,
     }
   }
 
@@ -121,10 +122,10 @@ impl Game {
   fn initialize_board() -> [[Option<Piece>; 8]; 8] {
     let standard_starting_board =
       String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    Game::initialize_board_from_fen(standard_starting_board)
+    Game::initialize_board_from_fen(standard_starting_board).0
   }
 
-  fn initialize_board_from_fen(fen_string: String) -> [[Option<Piece>; 8]; 8] {
+  fn initialize_board_from_fen(fen_string: String) -> ([[Option<Piece>; 8]; 8], Colour) {
     let mut board: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
     let lines: Vec<&str> = fen_string.split(' ').collect();
     let positions: Vec<&str> = lines[0].split('/').collect();
@@ -159,7 +160,21 @@ impl Game {
       }
     }
 
-    board
+    println!("active colour = {}", lines[1]);
+    let turn = match lines[1] {
+      "w" => Colour::White,
+      _ => Colour::Black,
+    };
+
+    // println!("castling abilities = {}", lines[2]);
+
+    // println!("en passant targets = {}", lines[3]);
+
+    // println!("halfmoves = {}", lines[4]);
+
+    // println!("fullmoves = {}", lines[5]);
+
+    (board, turn)
   }
 
   pub fn print_board(&self) {

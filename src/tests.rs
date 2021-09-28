@@ -12,6 +12,7 @@ mod tests {
       let game = Game::new_from_fen(String::from(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
       ));
+      assert_eq!(game.turn, Colour::White);
       assert_eq!(game.board[0][0].unwrap(), Piece::Rook(Colour::White));
       assert_eq!(game.board[0][1].unwrap(), Piece::Knight(Colour::White));
       assert_eq!(game.board[0][2].unwrap(), Piece::Bishop(Colour::White));
@@ -41,11 +42,15 @@ mod tests {
       assert_eq!(game.board[7][5].unwrap(), Piece::Bishop(Colour::Black));
       assert_eq!(game.board[7][6].unwrap(), Piece::Knight(Colour::Black));
       assert_eq!(game.board[7][7].unwrap(), Piece::Rook(Colour::Black));
+
+      let game = Game::new_from_fen(String::from("4k2r/6r1/8/8/8/8/3R4/R3K3 b Qk - 0 1"));
+      assert_eq!(game.turn, Colour::Black);
     }
 
     #[test]
     fn random_fen_inits() {
       let game = Game::new_from_fen(String::from("4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1"));
+      assert_eq!(game.turn, Colour::White);
 
       assert_eq!(game.board[0][0].unwrap(), Piece::Rook(Colour::White));
       assert_eq!(game.board[1][3].unwrap(), Piece::Rook(Colour::White));
@@ -59,6 +64,7 @@ mod tests {
       let game = Game::new_from_fen(String::from(
         "8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b - - 99 50",
       ));
+      assert_eq!(game.turn, Colour::Black);
 
       assert_eq!(game.board[2][0].unwrap(), Piece::Pawn(Colour::White));
       assert_eq!(game.board[4][1].unwrap(), Piece::Pawn(Colour::Black));
