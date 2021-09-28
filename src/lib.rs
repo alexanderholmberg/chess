@@ -292,17 +292,60 @@ impl Game {
     }
 
     // check for check
-    if self.check_for_check(old_position, new_position) {
-      Some(GameState::Check)
-    } else {
-      Some(GameState::InProgress)
+    if self.check_for_check(moving_piece, old_position, new_position) {
+      self.state = GameState::Check;
+      return Some(GameState::Check);
     }
+
+    Some(GameState::InProgress)
   }
 
-  fn check_for_check(&self, origin: Position, target: Position) -> bool {
+  fn check_for_check(&self, attacking_piece: Piece, origin: Position, target: Position) -> bool {
     // check if the piece on the target square can attack the king
     // or if any piece on the origin ray can
+    // locate opposing king
+
+    let king_position = match attacking_piece.get_colour() {
+      Colour::White => self.get_king(String::from("black")),
+      Colour::Black => self.get_king(String::from("white")),
+    };
+
+    // check if the piece on it's new square can take out the king
+    let moves = self.get_all_moves(target, attacking_piece);
+    for mv in moves {
+      if mv == king_position {
+        return true;
+      }
+    }
+
+    // check if a piece on the origins ray can take out the king
+
     false
+  }
+
+  fn get_king(&self, colour: String) -> Position {
+    for i in 0..=7 {
+      for j in 0..=7 {
+        match self.board[i][j] {
+          Some(piece) => match piece {
+            Piece::King(Colour::White) => {
+              if colour == "white" {
+                return Position(i, j);
+              }
+            }
+            Piece::King(Colour::Black) => {
+              if colour == "black" {
+                return Position(i, j);
+              }
+            }
+            _ => {}
+          },
+          _ => {}
+        }
+      }
+    }
+    // will never happen, fix error handling
+    Position(0, 0)
   }
 
   fn parse_string(position: &String) -> Position {

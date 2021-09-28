@@ -539,12 +539,30 @@ mod tests {
       m2.sort();
       assert_eq!(m, m2);
     }
+
+    #[test]
+    fn getting_king() {
+      let game = Game::new();
+      assert_eq!(game.get_king(String::from("white")), Position(0, 4));
+      assert_eq!(game.get_king(String::from("black")), Position(7, 4));
+      let game = Game::new_from_fen(String::from(
+        "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 b - - 0 1",
+      ));
+      assert_eq!(game.get_king(String::from("white")), Position(1, 4));
+      assert_eq!(game.get_king(String::from("black")), Position(7, 4));
+      let game = Game::new_from_fen(String::from(
+        "8/3q1k2/3r4/1p1Pp2p/pP2Pp1P/P4P2/7K/8 b - - 99 50",
+      ));
+      assert_eq!(game.get_king(String::from("white")), Position(1, 7));
+      assert_eq!(game.get_king(String::from("black")), Position(6, 5));
+    }
   }
 
   mod special_rules {
     use crate::Castling;
     use crate::Colour;
     use crate::Game;
+    use crate::GameState;
     use crate::Piece;
     use crate::Position;
     #[test]
@@ -576,6 +594,26 @@ mod tests {
         black_king: true,
       };
       assert_eq!(game.castling, castling);
+    }
+
+    #[test]
+    fn check() {
+      let game = Game::new();
+      assert_eq!(game.state, GameState::InProgress);
+      //game.check_for_check(attacking_piece: Piece, origin: Position, target: Position)
+
+      let mut game = Game::new_from_fen(String::from(
+        "rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq - 0 3",
+      ));
+      game.make_move(String::from("f1"), String::from("b5"));
+      assert_eq!(game.state, GameState::Check);
+      let mut game = Game::new_from_fen(String::from(
+        "rnbq1bnr/ppp2ppp/3k4/1B1P4/5p2/8/PPPPQ1PP/RNB1K1NR w KQ - 2 6",
+      ));
+      game.make_move(String::from("e2"), String::from("e6"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("d6"), String::from("c5"));
+      assert_eq!(game.state, GameState::InProgress);
     }
   }
 }

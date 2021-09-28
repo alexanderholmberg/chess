@@ -1,0 +1,2 @@
+check for check:
+  - just check if any opposing piece can take the king
