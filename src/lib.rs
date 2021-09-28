@@ -276,6 +276,8 @@ impl Game {
           }
         }
         if make_move {
+          // check for check here
+          // cannot move into check
           self.board[new_position.0][new_position.1] = Some(moving_piece);
           self.board[old_position.0][old_position.1] = None;
           self.turn = match self.turn {
@@ -289,7 +291,18 @@ impl Game {
       None => {}
     }
 
-    Some(GameState::InProgress)
+    // check for check
+    if self.check_for_check(old_position, new_position) {
+      Some(GameState::Check)
+    } else {
+      Some(GameState::InProgress)
+    }
+  }
+
+  fn check_for_check(&self, origin: Position, target: Position) -> bool {
+    // check if the piece on the target square can attack the king
+    // or if any piece on the origin ray can
+    false
   }
 
   fn parse_string(position: &String) -> Position {
