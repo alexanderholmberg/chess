@@ -1,5 +1,4 @@
 use std::io;
-
 mod tests;
 
 #[derive(Debug, PartialEq)]
@@ -95,30 +94,6 @@ impl Game {
     }
   }
 
-  fn get_starting_piece_at_position(row: usize, col: usize) -> Piece {
-    match (row, col) {
-      (1, _) => Piece::Pawn(Colour::White),
-      (0, 0) => Piece::Rook(Colour::White),
-      (0, 1) => Piece::Knight(Colour::White),
-      (0, 2) => Piece::Bishop(Colour::White),
-      (0, 3) => Piece::Queen(Colour::White),
-      (0, 4) => Piece::King(Colour::White),
-      (0, 5) => Piece::Bishop(Colour::White),
-      (0, 6) => Piece::Knight(Colour::White),
-      (0, 7) => Piece::Rook(Colour::White),
-      (6, _) => Piece::Pawn(Colour::Black),
-      (7, 0) => Piece::Rook(Colour::Black),
-      (7, 1) => Piece::Knight(Colour::Black),
-      (7, 2) => Piece::Bishop(Colour::Black),
-      (7, 3) => Piece::Queen(Colour::Black),
-      (7, 4) => Piece::King(Colour::Black),
-      (7, 5) => Piece::Bishop(Colour::Black),
-      (7, 6) => Piece::Knight(Colour::Black),
-      (7, 7) => Piece::Rook(Colour::Black),
-      _ => Piece::Pawn(Colour::White), // handle error here
-    }
-  }
-
   fn initialize_board() -> [[Option<Piece>; 8]; 8] {
     let standard_starting_board =
       String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -160,7 +135,6 @@ impl Game {
       }
     }
 
-    println!("active colour = {}", lines[1]);
     let turn = match lines[1] {
       "w" => Colour::White,
       _ => Colour::Black,
@@ -191,6 +165,71 @@ impl Game {
       println!();
     }
     println!();
+  }
+
+  pub fn play() {
+    let mut game = Game::new();
+    loop {
+      match game.turn {
+        Colour::White => {
+          println!("move for white (from, to) EXAMPLE a2a4: ");
+        }
+        Colour::Black => {
+          println!("move for black (from, to) EXAMPLE a7a5: ");
+        }
+      };
+      let mut mv = String::new();
+      io::stdin().read_line(&mut mv).expect("Failed to read line");
+      // skip the rest of the current iteration if we get a illegal input
+      let actual_move: String = match mv.trim().parse() {
+        Ok(pos) => pos,
+        Err(_) => continue,
+      };
+      if actual_move == "q" {
+        break;
+      }
+      let mut from = String::from("");
+      let mut to = String::from("");
+      for (i, c) in actual_move.chars().enumerate() {
+        if i == 0 || i == 1 {
+          from.push(c);
+        } else {
+          to.push(c);
+        }
+      }
+      // kolla ifall from och to ar legit moves
+      if !Game::check_input(from.clone(), to.clone()) {
+        println!("illegal input!");
+        continue;
+      }
+      println!("from: {}, to: {}", from, to);
+      match game.make_move(from, to) {
+        Some(_) => {}
+        None => {
+          println!("illegal move!");
+          continue;
+        }
+      }
+      game.print_board();
+    }
+  }
+
+  fn check_input(from: String, to: String) -> bool {
+    let every_tile = Game::get_all_tiles();
+    let mut legit: (bool, bool) = (false, false);
+    for tile in every_tile {
+      if tile == from {
+        legit.0 = true;
+      }
+      if tile == to {
+        legit.1 = true;
+      }
+    }
+    if legit == (true, true) {
+      true
+    } else {
+      false
+    }
   }
 
   pub fn get_all_tiles() -> Vec<String> {

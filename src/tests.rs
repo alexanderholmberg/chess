@@ -154,6 +154,92 @@ mod tests {
     }
 
     #[test]
+    fn random_moves() {}
+
+    #[test]
+    fn move_twice_in_row() {
+      let mut game = Game::new();
+      // cant move white twice in a row
+      assert_eq!(
+        game
+          .make_move(String::from("a2"), String::from("a4"))
+          .is_some(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("b2"), String::from("b4"))
+          .is_some(),
+        false
+      );
+
+      assert_eq!(
+        game
+          .make_move(String::from("a7"), String::from("a5"))
+          .is_some(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("f7"), String::from("f5"))
+          .is_some(),
+        false
+      );
+    }
+
+    #[test]
+    fn moving_none() {
+      let mut game = Game::new();
+      // cant move white twice in a row
+      assert_eq!(
+        game
+          .make_move(String::from("a3"), String::from("a4"))
+          .is_some(),
+        false
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("b4"), String::from("b5"))
+          .is_some(),
+        false
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("b6"), String::from("b7"))
+          .is_some(),
+        false
+      );
+    }
+
+    #[test]
+    fn validate_input() {
+      assert_eq!(
+        Game::check_input(String::from("daggbfdlgh"), String::from("bfdnlgbvfdhb")),
+        false
+      );
+      assert_eq!(
+        Game::check_input(String::from("f2"), String::from("f9")),
+        false
+      );
+      assert_eq!(
+        Game::check_input(String::from("f0"), String::from("e0")),
+        false
+      );
+      assert_eq!(
+        Game::check_input(String::from("a2"), String::from("a4")),
+        true
+      );
+      assert_eq!(
+        Game::check_input(String::from("b7"), String::from("b5")),
+        true
+      );
+      assert_eq!(
+        Game::check_input(String::from("g2"), String::from("g4")),
+        true
+      );
+    }
+
+    #[test]
     fn pawn_moves() {
       let game = Game::new();
 
