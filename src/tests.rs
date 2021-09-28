@@ -157,6 +157,20 @@ mod tests {
     fn random_moves() {}
 
     #[test]
+    fn getting_possible_moves() {
+      let game = Game::new();
+      assert_eq!(game.get_possible_moves(String::from("a2")).is_some(), true);
+      let mut m = game.get_possible_moves(String::from("a2")).unwrap();
+      let mut m2 = vec![String::from("a3"), String::from("a4")];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+      assert_eq!(game.get_possible_moves(String::from("c3")).is_none(), true);
+      assert_eq!(game.get_possible_moves(String::from("c6")).is_none(), true);
+      assert_eq!(game.get_possible_moves(String::from("d5")).is_none(), true);
+      assert_eq!(game.get_possible_moves(String::from("e4")).is_none(), true);
+    }
+    #[test]
     fn move_twice_in_row() {
       let mut game = Game::new();
       // cant move white twice in a row

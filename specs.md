@@ -1,3 +1,13 @@
+# todo
+
+- check
+- promotion
+
+- castling
+- en passant
+- checkmate
+- stalemate
+
 # mandatory
 
 - whose turn it is

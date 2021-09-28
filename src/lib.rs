@@ -151,7 +151,7 @@ impl Game {
     (board, turn)
   }
 
-  pub fn print_board(&self) {
+  fn print_board(&self) {
     println!();
     for row in self.board.iter().rev() {
       for maybe_piece in row {
@@ -253,7 +253,7 @@ impl Game {
     }
 
     let mut make_move = false;
-    match Game::get_possible_moves(self, moving_piece, _from) {
+    match Game::get_possible_moves(self, _from) {
       Some(moves) => {
         for mv in moves {
           if mv == _to {
@@ -332,8 +332,10 @@ impl Game {
   }
 
   // given position, returns all possible moves for the piece
-  pub fn get_possible_moves(&self, moving_piece: Piece, _position: String) -> Option<Vec<String>> {
+  // None at position, return None
+  pub fn get_possible_moves(&self, _position: String) -> Option<Vec<String>> {
     let position = Game::parse_string(&_position);
+    let moving_piece = self.board[position.0][position.1]?;
     let all_moves = Game::get_all_moves(self, position, moving_piece);
 
     let mut str_moves = vec![];
