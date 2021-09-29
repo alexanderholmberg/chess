@@ -282,6 +282,10 @@ impl Game {
 
     match possible_moves {
       Some(moves) => {
+        if moves.len() == 0 {
+          self.state = GameState::GameOver;
+          return Some(self.state);
+        }
         for mv in moves {
           if mv == _to {
             make_move = true;
@@ -310,12 +314,12 @@ impl Game {
     self.state = GameState::InProgress;
 
     if moving_piece.get_colour() == Colour::White {
-      // check if black is in check
+      // check if black is now in check
       if self.check(String::from("black")) {
         self.state = GameState::Check;
       }
     } else {
-      // check if white is in check
+      // check if white is now in check
       if self.check(String::from("white")) {
         self.state = GameState::Check;
       }
@@ -340,6 +344,11 @@ impl Game {
       c = Game::colour_from_string("black");
 
       // SCAN FOR PAWN ATTACKS
+      if self.board[king.0 + 1][king.1 + 1] == Some(Piece::Pawn(c))
+        || self.board[king.0 + 1][king.1 - 1] == Some(Piece::Pawn(c))
+      {
+        return true;
+      }
     } else {
       king = self.get_king(String::from("black"));
       c = Game::colour_from_string("white");
@@ -392,7 +401,7 @@ impl Game {
       }
     }
     // scan for horizontal attacks left to the king
-    for col in (0..king.0).rev() {
+    for col in (0..king.1).rev() {
       match self.board[king.0][col] {
         Some(piece) => {
           if piece.get_colour() == king_piece.get_colour() {
@@ -405,131 +414,189 @@ impl Game {
       }
     }
 
-    // FIX DIAGONAL CHECKS
-
     // scan for top right diagonal attacks
-    for row in (king.0 + 1)..=7 {
-      for col in (king.1 + 1)..=7 {
-        match self.board[row][col] {
-          Some(piece) => {
-            if piece.get_colour() == king_piece.get_colour() {
-              break;
-            } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
-              return true;
-            }
+    let mut i = king.0;
+    let mut j = king.1;
+    loop {
+      if i == 7 || j == 7 {
+        break;
+      }
+      i += 1;
+      j += 1;
+
+      match self.board[i][j] {
+        Some(piece) => {
+          if piece.get_colour() == king_piece.get_colour() {
+            break;
+          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+            return true;
           }
-          None => {}
         }
+        None => {}
       }
     }
 
     // scan for down right diagonal attacks
-    for row in (0..king.0).rev() {
-      for col in (king.1 + 1)..=7 {
-        println!("{}:{}", row, col);
-        match self.board[row][col] {
-          Some(piece) => {
-            if piece.get_colour() == king_piece.get_colour() {
-              break;
-            } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
-              println!("{}:{}, piece = {:?}", row, col, piece);
-              println!("true for some reason..");
-              return true;
-            }
+    let mut i = king.0;
+    let mut j = king.1;
+    loop {
+      if i == 0 || j == 7 {
+        break;
+      }
+      i -= 1;
+      j += 1;
+
+      match self.board[i][j] {
+        Some(piece) => {
+          if piece.get_colour() == king_piece.get_colour() {
+            break;
+          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+            return true;
           }
-          None => {}
         }
+        None => {}
       }
     }
 
     // scan for top left diagonal attacks
-    for row in (0..king.0).rev() {
-      for col in (0..king.1).rev() {
-        match self.board[row][col] {
-          Some(piece) => {
-            if piece.get_colour() == king_piece.get_colour() {
-              break;
-            } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
-              return true;
-            }
+    let mut i = king.0;
+    let mut j = king.1;
+    loop {
+      if i == 7 || j == 0 {
+        break;
+      }
+      i += 1;
+      j -= 1;
+
+      match self.board[i][j] {
+        Some(piece) => {
+          if piece.get_colour() == king_piece.get_colour() {
+            break;
+          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+            return true;
           }
-          None => {}
         }
+        None => {}
       }
     }
 
     // scan for down left diagonal attacks
-    for row in (king.0 + 1)..=7 {
-      for col in (0..king.1).rev() {
-        match self.board[row][col] {
-          Some(piece) => {
-            if piece.get_colour() == king_piece.get_colour() {
-              break;
-            } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
-              return true;
-            }
+    let mut i = king.0;
+    let mut j = king.1;
+    loop {
+      if i == 0 || j == 0 {
+        break;
+      }
+      i -= 1;
+      j -= 1;
+
+      match self.board[i][j] {
+        Some(piece) => {
+          if piece.get_colour() == king_piece.get_colour() {
+            break;
+          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+            return true;
           }
-          None => {}
         }
+        None => {}
       }
     }
     // scan for knight attacks
     // top left fw move
     if king.1 > 0 && king.0 < 6 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 + 2][king.1 - 1] {
-        return true;
+      match self.board[king.0 + 2][king.1 - 1] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // top right fw move
     if king.1 < 7 && king.0 < 6 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 + 2][king.1 + 1] {
-        return true;
+      match self.board[king.0 + 2][king.1 + 1] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // left side top move
     if king.1 > 1 && king.0 < 7 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 + 1][king.1 - 2] {
-        return true;
+      match self.board[king.0 + 1][king.1 - 2] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // left side down move
     if king.1 > 1 && king.0 > 0 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 - 1][king.1 - 2] {
-        return true;
+      match self.board[king.0 - 1][king.1 - 2] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // down left move
     if king.1 > 0 && king.0 > 1 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 - 2][king.1 - 1] {
-        return true;
+      match self.board[king.0 - 2][king.1 - 1] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // down right move
     if king.1 < 7 && king.0 > 1 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 - 2][king.1 + 1] {
-        return true;
+      match self.board[king.0 - 2][king.1 + 1] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // right down move
     if king.1 < 6 && king.0 > 0 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 - 1][king.1 + 2] {
-        return true;
+      match self.board[king.0 - 1][king.1 + 2] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
 
     // right up move
     if king.1 < 6 && king.0 < 7 {
-      if let Some(Piece::Knight(c)) = self.board[king.0 + 1][king.1 + 2] {
-        return true;
+      match self.board[king.0 + 1][king.1 + 2] {
+        Some(piece) => {
+          if piece.get_colour() != king_piece.get_colour() && piece == Piece::Knight(c) {
+            return true;
+          }
+        }
+        None => {}
       }
     }
-    println!("YOOOOO");
     false
   }
 

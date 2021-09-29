@@ -597,34 +597,164 @@ mod tests {
     }
 
     #[test]
-    fn checks_for_check() {
+    fn black_in_check() {
       let mut game = Game::new();
       game.make_move(String::from("a2"), String::from("a4"));
       assert_eq!(game.state, GameState::InProgress);
-      //game.check_for_check(attacking_piece: Piece, origin: Position, target: Position)
 
       let mut game = Game::new_from_fen(String::from(
         "rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w KQkq - 0 3",
       ));
       game.make_move(String::from("f1"), String::from("b5"));
-      //assert_eq!(game.state, GameState::Check);
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e8"), String::from("e7"));
+      assert_eq!(game.state, GameState::InProgress);
       let mut game = Game::new_from_fen(String::from(
         "rnbq1bnr/ppp2ppp/3k4/1B1P4/5p2/8/PPPPQ1PP/RNB1K1NR w KQ - 2 6",
       ));
       game.make_move(String::from("e2"), String::from("e6"));
-      //assert_eq!(game.state, GameState::Check);
+      assert_eq!(game.state, GameState::Check);
       game.make_move(String::from("d6"), String::from("c5"));
-      //assert_eq!(game.state, GameState::InProgress);
+      assert_eq!(game.state, GameState::InProgress);
       game.make_move(String::from("e6"), String::from("c6"));
-      //assert_eq!(game.state, GameState::Check);
+      assert_eq!(game.state, GameState::Check);
       game.make_move(String::from("c5"), String::from("b4"));
-      //assert_eq!(game.state, GameState::InProgress);
+      assert_eq!(game.state, GameState::InProgress);
+    }
 
+    #[test]
+    fn white_in_check() {
       let mut game = Game::new_from_fen(String::from(
         "rnbq1bnr/ppp2ppp/3k4/1B1P4/5p2/8/PPPP1QPP/RNB1K1NR b KQ - 3 6",
       ));
       game.make_move(String::from("d8"), String::from("e8"));
-      //assert_eq!(game.state, GameState::Check);
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e1"), String::from("f1"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("e8"), String::from("e1"));
+      assert_eq!(game.state, GameState::Check);
+      game.print_board();
+      game.make_move(String::from("f1"), String::from("e1"));
+      assert_eq!(game.state, GameState::InProgress);
+
+      let mut game = Game::new_from_fen(String::from(
+        "rnb1kbnr/ppp2ppp/8/6N1/5B2/3q2p1/PPP4P/RN2KB1R b KQkq - 1 8",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("d3"), String::from("e2"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("f4"), String::from("e3"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("f8"), String::from("b4"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e1"), String::from("e2"));
+      assert_eq!(game.state, GameState::InProgress);
+      let mut game = Game::new_from_fen(String::from(
+        "rnbk4/ppp2ppp/2P4n/bP4N1/P7/4B1p1/R3K2P/3r1B1R b - - 2 19",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("d1"), String::from("e1"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e2"), String::from("d3"));
+      assert_eq!(game.state, GameState::InProgress);
+    }
+
+    #[test]
+    fn black_in_check_by_pawn() {
+      let mut game = Game::new_from_fen(String::from(
+        "rnbqk1nr/1p3ppp/2pPP3/p7/8/4p3/PP3PPP/RNBQKBNR w KQkq - 0 8",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("d6"), String::from("d7"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("d8"), String::from("d7"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("e6"), String::from("f7"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e8"), String::from("f7"));
+      assert_eq!(game.state, GameState::InProgress);
+    }
+
+    #[test]
+    fn white_in_check_by_pawn() {
+      let mut game = Game::new_from_fen(String::from(
+        "rnbqkbnr/ppp2ppp/2P5/5P2/8/3pp3/PP4PP/RNBQKBNR b KQkq - 0 7",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("d3"), String::from("d2"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("c1"), String::from("d2"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("e3"), String::from("d2"));
+      assert_eq!(game.state, GameState::Check);
+      let mut game = Game::new_from_fen(String::from(
+        "rnbqkbnr/ppppp2p/4P3/2P5/3P4/5pP1/PP4PP/RNBQKBNR b KQkq - 0 7",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("f3"), String::from("f2"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e1"), String::from("f2"));
+      assert_eq!(game.state, GameState::InProgress);
+    }
+
+    #[test]
+    fn black_in_check_by_knight() {
+      let mut game = Game::new_from_fen(String::from(
+        "rnbqkbnr/5ppp/8/pNp1N3/3Pp3/8/PPP2PPP/R1BQKB1R w KQkq - 0 7",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("b5"), String::from("d6"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("e8"), String::from("e7"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("d6"), String::from("f5"));
+      assert_eq!(game.state, GameState::Check);
+      let mut game = Game::new_from_fen(String::from(
+        "rnbq1Nnr/5ppp/3b1k2/p1p5/PP1P4/4p3/2P2PPP/R1BQKB1R w KQ - 4 13",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("f8"), String::from("h7"));
+      assert_eq!(game.state, GameState::Check);
+    }
+
+    #[test]
+    fn white_in_check_by_knight() {
+      let mut game = Game::new_from_fen(String::from(
+        "r1bq2nr/4kppN/3b4/pPp5/P1Pn4/4p3/5PPP/R1BQKB1R b KQ - 0 16",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("d4"), String::from("c2"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("d1"), String::from("c2"));
+      game.print_board();
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("g8"), String::from("h6"));
+      assert_eq!(game.state, GameState::InProgress);
+      let mut game = Game::new_from_fen(String::from(
+        "r1bq3r/4kppN/3b4/pPp5/P1PQ4/3Bp3/5PPn/R1B1K2R b KQ - 1 20",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("h2"), String::from("f3"));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("g2"), String::from("f3"));
+      assert_eq!(game.state, GameState::InProgress);
+      let mut game = Game::new_from_fen(String::from(
+        "rnbqkbnr/pppp2pp/4pp2/8/8/4P3/PPPPKPPP/RNBQ1BNR w kq - 0 3",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("b2"), String::from("b4"));
+      game.make_move(String::from("a7"), String::from("a5"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("b1"), String::from("c3"));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("a4"), String::from("a4"));
+      assert_eq!(game.state, GameState::InProgress);
+      let mut game = Game::new_from_fen(String::from(
+        "r1bqkb1r/Nppp2pp/2n1pp2/8/pP4n1/4P3/P1PPKPPP/R1BQ1BNR b kq - 7 8",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      game.make_move(String::from("c6"), String::from("d4"));
+      assert_eq!(game.state, GameState::Check);
     }
 
     #[test]
