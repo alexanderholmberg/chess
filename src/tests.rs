@@ -778,6 +778,81 @@ mod tests {
       m2.sort();
       assert_eq!(m, m2);
     }
+
+    #[test]
+    fn cant_move_into_check() {
+      let mut game = Game::new_from_fen(String::from(
+        "r1bq2nr/4kppN/3b4/pnpQ4/P1P5/4p3/5PPP/R1B1KB1R b KQ - 1 17",
+      ));
+      assert_eq!(game.state, GameState::InProgress);
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("f6"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("f8"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("e6"))
+          .is_none(),
+        true
+      );
+
+      let mut game = Game::new_from_fen(String::from(
+        "Q1b1k1nr/5ppN/8/p1p3q1/P1P5/R2R4/4pPP1/2B1KB2 b - - 2 22",
+      ));
+      assert_eq!(
+        game
+          .make_move(String::from("e8"), String::from("d8"))
+          .is_none(),
+        true
+      );
+    }
+
+    #[test]
+    fn get_out_of_check() {
+      let mut game = Game::new_from_fen(String::from(
+        "r1bq2nr/4kppN/3b4/pnpQ4/P1P5/4p3/5PPP/R1B1KB1R b KQ - 1 17",
+      ));
+      game.make_move(String::from("d5"), String::from("e5"));
+      assert_eq!(game.state, GameState::Check);
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("e6"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("e8"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("f6"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("f8"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("e7"), String::from("d7"))
+          .is_some(),
+        true
+      );
+    }
   }
 
   mod other {

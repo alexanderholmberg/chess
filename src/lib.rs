@@ -225,6 +225,7 @@ impl Game {
         }
       }
       game.print_board();
+      println!("{:?}", game.get_game_state());
     }
   }
 
