@@ -561,8 +561,10 @@ mod tests {
 
   mod special_rules {
     use crate::Castling;
+    use crate::Colour;
     use crate::Game;
     use crate::GameState;
+    use crate::Piece;
     #[test]
     fn castling() {
       let game = Game::new();
@@ -882,6 +884,71 @@ mod tests {
           .make_move(String::from("d1"), String::from("c2"))
           .is_some(),
         true
+      );
+    }
+
+    #[test]
+    #[ignore]
+    fn checkmate() {
+      let mut game = Game::new_from_fen(String::from(
+        "1r1qkb1r/p3p2p/p4n1p/2P2P2/P5bP/Np5N/5PP1/R3KR2 b Qk - 1 14",
+      ));
+      game.make_move(String::from("d8"), String::from("a5"));
+      assert_eq!(game.state, GameState::Checkmate);
+      let mut game = Game::new_from_fen(String::from(
+        "rnb1kbnr/pp2pppp/8/2pp4/2PPP3/8/PP1q1PPP/RNB1KBNR w KQkq - 0 5",
+      ));
+      assert_eq!(game.state, GameState::Check);
+      let mut game = Game::new_from_fen(String::from(
+        "rnb2b1r/3Bkp2/1Q3p2/2P1N2p/2P1p3/2N5/PP3PPP/R3K2R w KQ - 0 16",
+      ));
+      game.make_move(String::from("c1"), String::from("d5"));
+      assert_eq!(game.state, GameState::Checkmate);
+      // checkmate from the start
+      let game = Game::new_from_fen(String::from(
+        "rnb2b1r/3Bkp2/1Q3p2/2PNN2p/2P1p3/8/PP3PPP/R3K2R b KQ - 1 16",
+      ));
+      assert_eq!(game.state, GameState::Checkmate);
+    }
+
+    #[test]
+    fn stalemate() {
+      let mut game = Game::new_from_fen(String::from(
+        "8/kR1RN3/p3p3/P3P2p/1PP4P/3K1PP1/8/8 b - - 0 1",
+      ));
+      assert_eq!(game.state, GameState::Check);
+      game.make_move(String::from("a7"), String::from("a8"));
+      assert_eq!(game.state, GameState::Stalemate);
+    }
+
+    #[test]
+    fn promotion_works() {
+      let mut game = Game::new_from_fen(String::from(
+        "r1bqkbnr/1P1ppppp/p1p5/8/1P1n4/8/2PPPPPP/RNBQKBNR w KQkq - 0 6",
+      ));
+      assert_eq!(
+        game.get_piece_at(String::from("b7")).unwrap(),
+        Piece::Pawn(Colour::White)
+      );
+      game.make_move(String::from("b7"), String::from("b8"));
+      //assume the promotion is to queen
+      assert_eq!(
+        game.get_piece_at(String::from("b8")).unwrap(),
+        Piece::Queen(Colour::White)
+      );
+
+      let mut game = Game::new_from_fen(String::from(
+        "2bqkbnr/1R1ppppp/8/8/3n4/8/p1PPPPPP/1NBQKBNR b Kk - 0 13",
+      ));
+      assert_eq!(
+        game.get_piece_at(String::from("a2")).unwrap(),
+        Piece::Pawn(Colour::Black)
+      );
+      game.make_move(String::from("a2"), String::from("b1"));
+      // assume the promotion is to queen
+      assert_eq!(
+        game.get_piece_at(String::from("b1")).unwrap(),
+        Piece::Queen(Colour::Black)
       );
     }
   }

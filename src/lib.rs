@@ -5,6 +5,8 @@ mod tests;
 pub enum GameState {
   InProgress,
   Check,
+  Checkmate,
+  Stalemate,
   GameOver,
 }
 
@@ -130,7 +132,6 @@ impl Game {
       _ => Colour::Black,
     };
 
-    // println!("castling abilities = {}", lines[2]);
     let mut castling = Castling {
       white_queen: false,
       white_king: false,
@@ -258,6 +259,11 @@ impl Game {
     }
   }
 
+  fn get_piece_at(&self, position: String) -> Option<Piece> {
+    let pos = Game::parse_string(&position);
+    self.board[pos.0][pos.1]
+  }
+
   pub fn get_all_tiles() -> Vec<String> {
     let mut tiles = vec![];
     for i in 0..=7 {
@@ -302,17 +308,39 @@ impl Game {
     // guaranteed not in check if we are here
     self.state = GameState::InProgress;
 
+    // check for promotion
+    match (moving_piece, new_position.0) {
+      (Piece::Pawn(Colour::White), 7) => {
+        // promote
+      }
+      (Piece::Pawn(Colour::Black), 0) => {
+        // promote
+      }
+      _ => {}
+    };
+
     if moving_piece.get_colour() == Colour::White {
       // check if black is now in check
       if self.check(String::from("black")) {
         self.state = GameState::Check;
       }
+      // check blacks possible moves
+      // scan board for black pieces
+      // for every piece, check if there is a possible move
     } else {
       // check if white is now in check
       if self.check(String::from("white")) {
         self.state = GameState::Check;
       }
+      // check whites possible moves
+      // scan board for white pieces
+      // for every piece, check if there is a possible move
     }
+
+    // check for possibles moves here
+    // if none and in check -> checkmate
+    // if none and not in check -> stalemate
+    // if moves -> neither check- or stalemate
 
     Some(self.state)
   }
@@ -350,7 +378,6 @@ impl Game {
       c = Game::colour_from_string("white");
       // scan for pawn attacks
       // down left
-      println!("in the right else block");
       if king.0 > 0 && king.1 > 0 {
         if self.board[king.0 - 1][king.1 - 1] == Some(Piece::Pawn(c)) {
           return true;
@@ -362,7 +389,6 @@ impl Game {
           return true;
         }
       }
-      println!("dude");
     }
 
     let king_piece = self.board[king.0][king.1].unwrap();
@@ -700,11 +726,6 @@ impl Game {
     } else {
       // check if black is still in check
       if fake_game.check(String::from("black")) {
-        println!(
-          "Still in check after {:?} from {:?} to {:?}",
-          moving_piece, from, to
-        );
-        fake_game.print_board();
         fake_game.state = GameState::Check;
         return false;
       }
