@@ -137,7 +137,6 @@ impl Game {
       black_queen: false,
       black_king: false,
     };
-    println!("{}", lines[2]);
     for c in lines[2].chars() {
       match c {
         '-' => break,
@@ -149,6 +148,8 @@ impl Game {
       };
     }
 
+    println!("w up");
+
     // println!("en passant targets = {}", lines[3]);
 
     // println!("halfmoves = {}", lines[4]);
@@ -156,13 +157,29 @@ impl Game {
     // println!("fullmoves = {}", lines[5]);
 
     // (board, turn, castling_white, castling_black)
-    Game {
+    let mut game = Game {
       turn,
       name: String::from("yoo"),
       state: GameState::InProgress,
       board,
       castling,
+    };
+
+    println!("w up again");
+
+    if game.turn == Colour::White {
+      if game.check(String::from("white")) {
+        game.state = GameState::Check;
+      }
+    } else {
+      if game.check(String::from("black")) {
+        game.state = GameState::Check;
+      }
     }
+
+    println!("w up once again");
+
+    game
   }
 
   fn print_board(&self) {
@@ -260,29 +277,6 @@ impl Game {
   // fn removes_check(&self, mv: String) -> bool {
   //   false
   // }
-  fn move_removes_check(&mut self, from: &String, to: &String, moving_piece: Piece) -> bool {
-    // 1. make move
-    // clone board
-    let mut fake_game = self.clone();
-    let from = Game::parse_string(&from);
-    let to = Game::parse_string(&to);
-    fake_game.board[to.0][to.1] = Some(moving_piece);
-    fake_game.board[from.0][from.1] = None;
-    if moving_piece.get_colour() == Colour::White {
-      // check if white is still in check
-      if fake_game.check(String::from("white")) {
-        fake_game.state = GameState::Check;
-        return false;
-      }
-    } else {
-      // check if black is still in check
-      if fake_game.check(String::from("black")) {
-        fake_game.state = GameState::Check;
-        return false;
-      }
-    }
-    true
-  }
 
   // returns Some(GameState) if move is possible, else None
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
@@ -300,14 +294,6 @@ impl Game {
       "moves before for {:?} at {:?} = {:?}",
       moving_piece, old_position, possible_moves
     );
-    if self.state == GameState::Check {
-      possible_moves.retain(|to| self.move_removes_check(&_from, &to, moving_piece));
-      // only keep moves that removes the check
-      // 1. make move
-      // 2. see if check is gone by calling check()
-      // 3. roll back move
-      // checkmate if there are zero moves
-    }
     self.print_board();
     println!(
       "moves after for {:?} at {:?} = {:?}",
@@ -376,19 +362,33 @@ impl Game {
       c = Game::colour_from_string("black");
 
       // SCAN FOR PAWN ATTACKS
-      if self.board[king.0 + 1][king.1 + 1] == Some(Piece::Pawn(c))
-        || self.board[king.0 + 1][king.1 - 1] == Some(Piece::Pawn(c))
-      {
-        return true;
+      // up left
+      if king.0 < 7 && king.1 > 0 {
+        if self.board[king.0 + 1][king.1 - 1] == Some(Piece::Pawn(c)) {
+          return true;
+        }
+      }
+      // up right
+      if king.0 < 7 && king.1 < 7 {
+        if self.board[king.0 + 1][king.1 + 1] == Some(Piece::Pawn(c)) {
+          return true;
+        }
       }
     } else {
       king = self.get_king(String::from("black"));
       c = Game::colour_from_string("white");
       // scan for pawn attacks
-      if self.board[king.0 - 1][king.1 - 1] == Some(Piece::Pawn(c))
-        || self.board[king.0 - 1][king.1 + 1] == Some(Piece::Pawn(c))
-      {
-        return true;
+      // down left
+      if king.0 > 0 && king.1 > 0 {
+        if self.board[king.0 - 1][king.1 - 1] == Some(Piece::Pawn(c)) {
+          return true;
+        }
+      }
+      // down right
+      if king.0 > 0 && king.1 < 7 {
+        if self.board[king.0 - 1][king.1 + 1] == Some(Piece::Pawn(c)) {
+          return true;
+        }
       }
     }
 
@@ -732,12 +732,42 @@ impl Game {
     &self.state
   }
 
+  fn move_removes_check(&self, from: &Position, to: &Position, moving_piece: Piece) -> bool {
+    // 1. make move
+    // clone board
+    let mut fake_game = self.clone();
+    //let from = Game::parse_string(&from);
+    //let to = Game::parse_string(&to);
+    fake_game.board[to.0][to.1] = Some(moving_piece);
+    fake_game.board[from.0][from.1] = None;
+    if moving_piece.get_colour() == Colour::White {
+      // check if white is still in check
+      if fake_game.check(String::from("white")) {
+        fake_game.state = GameState::Check;
+        return false;
+      }
+    } else {
+      // check if black is still in check
+      if fake_game.check(String::from("black")) {
+        fake_game.state = GameState::Check;
+        return false;
+      }
+    }
+    true
+  }
+
   // given position, returns all possible moves for the piece
   // None at position, return None
   pub fn get_possible_moves(&self, _position: String) -> Option<Vec<String>> {
     let position = Game::parse_string(&_position);
     let moving_piece = self.board[position.0][position.1]?;
-    let all_moves = Game::get_all_moves(self, position, moving_piece);
+    let mut all_moves = Game::get_all_moves(self, position, moving_piece);
+    let from = Game::parse_string(&_position);
+
+    if self.state == GameState::Check {
+      // only keep moves that removes the check
+      all_moves.retain(|to| self.move_removes_check(&from, to, moving_piece));
+    }
 
     let mut str_moves = vec![];
     for mv in all_moves {
