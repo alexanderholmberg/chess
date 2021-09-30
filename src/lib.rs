@@ -309,12 +309,16 @@ impl Game {
     self.state = GameState::InProgress;
 
     // check for promotion
-    match (moving_piece, new_position.0) {
-      (Piece::Pawn(Colour::White), 7) => {
-        // promote
+    match (new_position.0, moving_piece) {
+      (7, Piece::Pawn(Colour::White)) => {
+        // ask for piece here
+        let new_piece = Piece::Queen(Colour::White);
+        self.set_promotion(Game::parse_coordinates(new_position), new_piece);
       }
-      (Piece::Pawn(Colour::Black), 0) => {
-        // promote
+      (0, Piece::Pawn(Colour::Black)) => {
+        // ask for piece here
+        let new_piece = Piece::Queen(Colour::Black);
+        self.set_promotion(Game::parse_coordinates(new_position), new_piece);
       }
       _ => {}
     };
@@ -701,10 +705,10 @@ impl Game {
     fin
   }
 
-  // // promote a peasant
-  // pub fn set_promotion(&mut self, _piece: String) -> () {
-
-  // }
+  pub fn set_promotion(&mut self, position: String, new_piece: Piece) -> () {
+    let pos = Game::parse_string(&position);
+    self.board[pos.0][pos.1] = Some(new_piece);
+  }
   // // get current game state
   // the api return GameState, not a reference
   pub fn get_game_state(&self) -> &GameState {
