@@ -393,10 +393,10 @@ impl Game {
     for row in (king.0 + 1)..=7 {
       match self.board[row][king.1] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
@@ -408,11 +408,7 @@ impl Game {
     for row in (0..king.0).rev() {
       match self.board[row][king.1] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          }
           if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
-            println!("tha piece {:?}", piece);
             return true;
           } else {
             break;
@@ -427,10 +423,10 @@ impl Game {
     for col in (king.1 + 1)..=7 {
       match self.board[king.0][col] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
@@ -440,10 +436,10 @@ impl Game {
     for col in (0..king.1).rev() {
       match self.board[king.0][col] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
@@ -462,10 +458,10 @@ impl Game {
 
       match self.board[i][j] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
@@ -484,10 +480,10 @@ impl Game {
 
       match self.board[i][j] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
@@ -506,10 +502,10 @@ impl Game {
 
       match self.board[i][j] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
@@ -528,10 +524,10 @@ impl Game {
 
       match self.board[i][j] {
         Some(piece) => {
-          if piece.get_colour() == king_piece.get_colour() {
-            break;
-          } else if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
+          if piece == Piece::Bishop(c) || piece == Piece::Queen(c) {
             return true;
+          } else {
+            break;
           }
         }
         None => {}
