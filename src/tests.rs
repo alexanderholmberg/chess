@@ -931,24 +931,35 @@ mod tests {
         Piece::Pawn(Colour::White)
       );
       game.make_move(String::from("b7"), String::from("b8"));
-      //assume the promotion is to queen
+      assert_eq!(game.promote.clone(), (true, String::from("b8")));
+      game.print_board();
+      assert_eq!(
+        game.get_piece_at(String::from("b8")).unwrap(),
+        Piece::Pawn(Colour::White)
+      );
+      game.set_promotion(game.promote.1.clone(), 'q');
+      game.promote = (false, String::new());
+      game.print_board();
       assert_eq!(
         game.get_piece_at(String::from("b8")).unwrap(),
         Piece::Queen(Colour::White)
       );
+      assert_eq!(game.promote, (false, String::new()));
 
       let mut game = Game::new_from_fen(String::from(
         "2bqkbnr/1R1ppppp/8/8/3n4/8/p1PPPPPP/1NBQKBNR b Kk - 0 13",
       ));
-      assert_eq!(
-        game.get_piece_at(String::from("a2")).unwrap(),
-        Piece::Pawn(Colour::Black)
-      );
       game.make_move(String::from("a2"), String::from("b1"));
-      // assume the promotion is to queen
+      assert_eq!(game.promote, (true, String::from("b1")));
       assert_eq!(
         game.get_piece_at(String::from("b1")).unwrap(),
-        Piece::Queen(Colour::Black)
+        Piece::Pawn(Colour::Black)
+      );
+      game.set_promotion(game.promote.1.clone(), 'r');
+      game.promote = (false, String::new());
+      assert_eq!(
+        game.get_piece_at(String::from("b1")).unwrap(),
+        Piece::Rook(Colour::Black)
       );
     }
   }

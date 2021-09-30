@@ -82,6 +82,7 @@ pub struct Game {
   board: [[Option<Piece>; 8]; 8],
   turn: Colour,
   castling: Castling,
+  promote: (bool, String),
 }
 
 impl Game {
@@ -162,6 +163,7 @@ impl Game {
       state: GameState::InProgress,
       board,
       castling,
+      promote: (false, String::new()),
     };
 
     if game.turn == Colour::White {
@@ -229,15 +231,46 @@ impl Game {
         continue;
       }
       println!("from: {}, to: {}", from, to);
-      match game.make_move(from, to) {
+      match game.make_move(from.clone(), to.clone()) {
         Some(_) => {}
         None => {
           println!("illegal move!");
           continue;
         }
       }
+
+      if game.promote.0 {
+        loop {
+          println!("Promote your pawn! q for queen, r for rook, k for knight and b for bishop: ");
+          let mut promotion = String::new();
+          io::stdin()
+            .read_line(&mut promotion)
+            .expect("Failed to read line");
+          let promotion: String = match promotion.trim().parse() {
+            Ok(piece) => piece,
+            Err(_) => continue,
+          };
+          if promotion == String::from("q") {
+            game.set_promotion(game.promote.1.clone(), 'q');
+            break;
+          } else if promotion == String::from("r") {
+            game.set_promotion(game.promote.1.clone(), 'r');
+            break;
+          } else if promotion == String::from("k") {
+            game.set_promotion(game.promote.1.clone(), 'k');
+            break;
+          } else if promotion == String::from("b") {
+            game.set_promotion(game.promote.1.clone(), 'b');
+            break;
+          } else {
+            println!("Only acceptable input is q, r, k or b.")
+          }
+        }
+      }
+      game.promote = (false, String::new());
+
       game.print_board();
-      println!("{:?}", game.get_game_state());
+      println!("STATE OF THE GAME = {:?}", game.get_game_state());
     }
   }
 
@@ -296,6 +329,16 @@ impl Game {
     if make_move {
       self.board[new_position.0][new_position.1] = Some(moving_piece);
       self.board[old_position.0][old_position.1] = None;
+      // check for promotion
+      match (new_position.0, moving_piece) {
+        (7, Piece::Pawn(Colour::White)) => {
+          self.promote = (true, _to);
+        }
+        (0, Piece::Pawn(Colour::Black)) => {
+          self.promote = (true, _to);
+        }
+        _ => {}
+      };
       self.turn = match self.turn {
         Colour::White => Colour::Black,
         Colour::Black => Colour::White,
@@ -307,21 +350,6 @@ impl Game {
 
     // guaranteed not in check if we are here
     self.state = GameState::InProgress;
-
-    // check for promotion
-    match (new_position.0, moving_piece) {
-      (7, Piece::Pawn(Colour::White)) => {
-        // ask for piece here
-        let new_piece = Piece::Queen(Colour::White);
-        self.set_promotion(Game::parse_coordinates(new_position), new_piece);
-      }
-      (0, Piece::Pawn(Colour::Black)) => {
-        // ask for piece here
-        let new_piece = Piece::Queen(Colour::Black);
-        self.set_promotion(Game::parse_coordinates(new_position), new_piece);
-      }
-      _ => {}
-    };
 
     if moving_piece.get_colour() == Colour::White {
       // check if black is now in check
@@ -705,9 +733,16 @@ impl Game {
     fin
   }
 
-  pub fn set_promotion(&mut self, position: String, new_piece: Piece) -> () {
+  pub fn set_promotion(&mut self, position: String, new_piece: char) -> () {
+    let piece = self.get_piece_at(position.clone()).unwrap();
     let pos = Game::parse_string(&position);
-    self.board[pos.0][pos.1] = Some(new_piece);
+    match new_piece {
+      'q' => self.board[pos.0][pos.1] = Some(Piece::Queen(piece.get_colour())),
+      'r' => self.board[pos.0][pos.1] = Some(Piece::Rook(piece.get_colour())),
+      'b' => self.board[pos.0][pos.1] = Some(Piece::Bishop(piece.get_colour())),
+      'k' => self.board[pos.0][pos.1] = Some(Piece::Knight(piece.get_colour())),
+      _ => {}
+    }
   }
   // // get current game state
   // the api return GameState, not a reference
