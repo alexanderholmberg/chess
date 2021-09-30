@@ -888,7 +888,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn checkmate() {
       let mut game = Game::new_from_fen(String::from(
         "1r1qkb1r/p3p2p/p4n1p/2P2P2/P5bP/Np5N/5PP1/R3KR2 b Qk - 1 14",
@@ -900,9 +899,9 @@ mod tests {
       ));
       assert_eq!(game.state, GameState::Check);
       let mut game = Game::new_from_fen(String::from(
-        "rnb2b1r/3Bkp2/1Q3p2/2P1N2p/2P1p3/2N5/PP3PPP/R3K2R w KQ - 0 16",
+        "rnb2b2/3Bkp2/1Q6/2P1N2r/2P2R1p/2N5/PP3PPP/R2K4 w - - 1 20",
       ));
-      game.make_move(String::from("c1"), String::from("d5"));
+      game.make_move(String::from("f4"), String::from("f7"));
       assert_eq!(game.state, GameState::Checkmate);
       // checkmate from the start
       let game = Game::new_from_fen(String::from(
@@ -914,9 +913,8 @@ mod tests {
     #[test]
     fn stalemate() {
       let mut game = Game::new_from_fen(String::from(
-        "8/kR1RN3/p3p3/P3P2p/1PP4P/3K1PP1/8/8 b - - 0 1",
+        "k7/1R1RN3/p3p3/P3P2p/1PP4P/3K1PP1/8/8 b - - 1 2",
       ));
-      assert_eq!(game.state, GameState::Check);
       game.make_move(String::from("a7"), String::from("a8"));
       assert_eq!(game.state, GameState::Stalemate);
     }

@@ -176,12 +176,22 @@ impl Game {
       }
     }
 
+    let exists = game.move_exists();
+    if !exists && game.state == GameState::Check {
+      game.state = GameState::Checkmate;
+    } else if !exists && game.state == GameState::InProgress {
+      game.state = GameState::Stalemate;
+    }
+
     game
   }
 
   fn print_board(&self) {
     println!();
+    let mut col_number = 8;
     for row in self.board.iter().rev() {
+      print!("{:?}", col_number);
+      col_number -= 1;
       for maybe_piece in row {
         // turn piece from Option to beautiful ascii chess pieces
         let c = match maybe_piece {
@@ -192,7 +202,7 @@ impl Game {
       }
       println!();
     }
-    println!();
+    println!(" 'A''B''C''D''E''F''G''H'");
   }
 
   pub fn play() {
@@ -271,6 +281,10 @@ impl Game {
 
       game.print_board();
       println!("STATE OF THE GAME = {:?}", game.get_game_state());
+      if game.state == GameState::Checkmate || game.state == GameState::Stalemate {
+        println!("THE RESULT OF THE GAME IS = {:?}", game.state);
+        break;
+      }
     }
   }
 
@@ -351,7 +365,7 @@ impl Game {
     // guaranteed not in check if we are here
     self.state = GameState::InProgress;
 
-    if moving_piece.get_colour() == Colour::White {
+    if self.turn == Colour::Black {
       // check if black is now in check
       if self.check(String::from("black")) {
         self.state = GameState::Check;
@@ -369,12 +383,43 @@ impl Game {
       // for every piece, check if there is a possible move
     }
 
+    let exists = self.move_exists();
+    println!("state = {:?}, exists = {}", self.state, exists);
+    if !exists && self.state == GameState::Check {
+      println!("checkmate");
+      self.state = GameState::Checkmate;
+    } else if !exists && self.state == GameState::InProgress {
+      self.state = GameState::Stalemate;
+    }
+
     // check for possibles moves here
     // if none and in check -> checkmate
     // if none and not in check -> stalemate
     // if moves -> neither check- or stalemate
 
     Some(self.state)
+  }
+
+  fn move_exists(&self) -> bool {
+    for i in 0..=7 {
+      for j in 0..=7 {
+        match self.board[i][j] {
+          Some(piece) => {
+            if piece.get_colour() == self.turn {
+              let moves = self
+                .get_possible_moves(Game::parse_coordinates(Position(i, j)))
+                .unwrap();
+              if moves.len() != 0 {
+                return true;
+              }
+            }
+          }
+          None => {}
+        }
+      }
+    }
+
+    false
   }
 
   fn colour_from_string(s: &str) -> Colour {
