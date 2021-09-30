@@ -132,6 +132,7 @@ mod tests {
       assert_eq!(game.board[4][2].is_none(), true);
     }
 
+    #[test]
     fn gets_game_state() {
       let mut game = Game::new();
       assert_eq!(*game.get_game_state(), GameState::InProgress);
@@ -560,11 +561,8 @@ mod tests {
 
   mod special_rules {
     use crate::Castling;
-    use crate::Colour;
     use crate::Game;
     use crate::GameState;
-    use crate::Piece;
-    use crate::Position;
     #[test]
     fn castling() {
       let game = Game::new();
@@ -782,40 +780,34 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn cant_move_into_check() {
-      let mut game = Game::new_from_fen(String::from(
+      let game = Game::new_from_fen(String::from(
         "r1bq2nr/4kppN/3b4/pnpQ4/P1P5/4p3/5PPP/R1B1KB1R b KQ - 1 17",
       ));
       assert_eq!(game.state, GameState::InProgress);
-      assert_eq!(
-        game
-          .make_move(String::from("e7"), String::from("f6"))
-          .is_none(),
-        true
-      );
-      assert_eq!(
-        game
-          .make_move(String::from("e7"), String::from("f8"))
-          .is_none(),
-        true
-      );
-      assert_eq!(
-        game
-          .make_move(String::from("e7"), String::from("e6"))
-          .is_none(),
-        true
-      );
+      let mut m = game.get_possible_moves(String::from("e7")).unwrap();
+      let mut m2 = vec![String::from("d7"), String::from("e8")];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
 
-      let mut game = Game::new_from_fen(String::from(
+      let game = Game::new_from_fen(String::from(
         "Q1b1k1nr/5ppN/8/p1p3q1/P1P5/R2R4/4pPP1/2B1KB2 b - - 2 22",
       ));
-      assert_eq!(
-        game
-          .make_move(String::from("e8"), String::from("d8"))
-          .is_none(),
-        true
-      );
+      let mut m = game.get_possible_moves(String::from("e8")).unwrap();
+      let mut m2 = vec![String::from("e7")];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
+
+      let game = Game::new_from_fen(String::from(
+        "Q1b1kN1r/3R1pp1/8/p1p3q1/P1P5/R1n5/4pPP1/2B1KB2 w - - 7 25",
+      ));
+      let mut m = game.get_possible_moves(String::from("e1")).unwrap();
+      let mut m2: Vec<String> = vec![];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
     }
 
     #[test]

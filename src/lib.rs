@@ -268,10 +268,6 @@ impl Game {
     tiles
   }
 
-  // fn removes_check(&self, mv: String) -> bool {
-  //   false
-  // }
-
   // returns Some(GameState) if move is possible, else None
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
     let old_position = Game::parse_string(&_from);
@@ -283,21 +279,8 @@ impl Game {
     }
 
     let mut make_move = false;
-    let mut possible_moves = Game::get_possible_moves(self, _from.clone())?;
-    println!(
-      "moves before for {:?} at {:?} = {:?}",
-      moving_piece, old_position, possible_moves
-    );
-    self.print_board();
-    println!(
-      "moves after for {:?} at {:?} = {:?}",
-      moving_piece, old_position, possible_moves
-    );
+    let possible_moves = Game::get_possible_moves(self, _from.clone())?;
 
-    if possible_moves.len() == 0 {
-      self.state = GameState::GameOver;
-      return Some(self.state);
-    }
     for mv in possible_moves {
       if mv == _to {
         make_move = true;
@@ -305,12 +288,6 @@ impl Game {
       }
     }
     if make_move {
-      // check for check here
-      // can't move into check
-      // 1. make move
-      // 2. see if player is in check by calling check()
-      // 3. roll back move
-      // stalemate if zero moves
       self.board[new_position.0][new_position.1] = Some(moving_piece);
       self.board[old_position.0][old_position.1] = None;
       self.turn = match self.turn {
@@ -318,7 +295,7 @@ impl Game {
         Colour::Black => Colour::White,
       };
     } else {
-      // move is not possible to make
+      // requested move is not possible to make
       return None;
     }
 
@@ -349,7 +326,7 @@ impl Game {
   }
 
   fn check(&self, possibly_checked_color: String) -> bool {
-    let mut king;
+    let king;
     let c;
     if possibly_checked_color == "white" {
       king = self.get_king(String::from("white"));
@@ -402,7 +379,6 @@ impl Game {
         None => {}
       }
     }
-    println!("bruh");
 
     // scan for vertical attacks below king
     for row in (0..king.0).rev() {
@@ -417,7 +393,6 @@ impl Game {
         None => {}
       }
     }
-    println!("bruh 2");
 
     // scan for horizontal attacks right to the king
     for col in (king.1 + 1)..=7 {
@@ -632,28 +607,6 @@ impl Game {
     false
   }
 
-  fn check_for_check(&self, attacking_piece: Piece, origin: Position, target: Position) -> bool {
-    // check if the piece on the target square can attack the king
-    // or if any piece on the origin ray can
-
-    let king_position = match attacking_piece.get_colour() {
-      Colour::White => self.get_king(String::from("black")),
-      Colour::Black => self.get_king(String::from("white")),
-    };
-
-    // check if the piece on it's new square can take out the king
-    let moves = self.get_all_moves(target, attacking_piece);
-    for mv in moves {
-      if mv == king_position {
-        return true;
-      }
-    }
-
-    // check if a piece on the origins ray can take out the king
-
-    false
-  }
-
   fn get_king(&self, colour: String) -> Position {
     for i in 0..=7 {
       for j in 0..=7 {
@@ -732,12 +685,10 @@ impl Game {
     &self.state
   }
 
-  fn move_removes_check(&self, from: &Position, to: &Position, moving_piece: Piece) -> bool {
+  fn not_in_check_after_move(&self, from: &Position, to: &Position, moving_piece: Piece) -> bool {
     // 1. make move
     // clone board
     let mut fake_game = self.clone();
-    //let from = Game::parse_string(&from);
-    //let to = Game::parse_string(&to);
     fake_game.board[to.0][to.1] = Some(moving_piece);
     fake_game.board[from.0][from.1] = None;
     if moving_piece.get_colour() == Colour::White {
@@ -768,13 +719,7 @@ impl Game {
     let moving_piece = self.board[position.0][position.1]?;
     let mut all_moves = Game::get_all_moves(self, position, moving_piece);
     let from = Game::parse_string(&_position);
-
-    println!("before check = {:?}", all_moves);
-    if self.state == GameState::Check {
-      // only keep moves that removes the check
-      all_moves.retain(|to| self.move_removes_check(&from, to, moving_piece));
-    }
-    println!("before check = {:?}", all_moves);
+    all_moves.retain(|to| self.not_in_check_after_move(&from, to, moving_piece));
 
     let mut str_moves = vec![];
     for mv in all_moves {
