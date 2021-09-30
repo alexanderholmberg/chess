@@ -764,7 +764,7 @@ mod tests {
       let game = Game::new_from_fen(String::from(
         "rnbq1bnr/ppp2ppp/2Q5/1BkP4/5p2/8/PPPP2PP/RNB1K1NR b KQ - 5 7",
       ));
-      //assert_eq!(game.state, GameState::Check);
+      assert_eq!(game.state, GameState::Check);
       let mut m = game.get_possible_moves(String::from("c5")).unwrap();
       let mut m2 = vec![String::from("b4"), String::from("d4")];
       m.sort();
@@ -773,12 +773,12 @@ mod tests {
       let game = Game::new_from_fen(String::from(
         "rnNq1bnr/p1pP1ppp/k3Q3/8/8/PP3p2/2PPN1PP/R1B1K2R b KQ - 0 17",
       ));
-      //assert_eq!(game.state, GameState::Check);
-      // let mut m = game.get_possible_moves(String::from("a6")).unwrap();
-      // let mut m2 = vec![String::from("b7"), String::from("a5"), String::from("b5")];
-      // m.sort();
-      // m2.sort();
-      // assert_eq!(m, m2);
+      assert_eq!(game.state, GameState::Check);
+      let mut m = game.get_possible_moves(String::from("a6")).unwrap();
+      let mut m2 = vec![String::from("b7"), String::from("a5"), String::from("b5")];
+      m.sort();
+      m2.sort();
+      assert_eq!(m, m2);
     }
 
     #[test]

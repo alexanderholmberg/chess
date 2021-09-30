@@ -148,8 +148,6 @@ impl Game {
       };
     }
 
-    println!("w up");
-
     // println!("en passant targets = {}", lines[3]);
 
     // println!("halfmoves = {}", lines[4]);
@@ -165,8 +163,6 @@ impl Game {
       castling,
     };
 
-    println!("w up again");
-
     if game.turn == Colour::White {
       if game.check(String::from("white")) {
         game.state = GameState::Check;
@@ -176,8 +172,6 @@ impl Game {
         game.state = GameState::Check;
       }
     }
-
-    println!("w up once again");
 
     game
   }
@@ -379,6 +373,7 @@ impl Game {
       c = Game::colour_from_string("white");
       // scan for pawn attacks
       // down left
+      println!("in the right else block");
       if king.0 > 0 && king.1 > 0 {
         if self.board[king.0 - 1][king.1 - 1] == Some(Piece::Pawn(c)) {
           return true;
@@ -390,6 +385,7 @@ impl Game {
           return true;
         }
       }
+      println!("dude");
     }
 
     let king_piece = self.board[king.0][king.1].unwrap();
@@ -406,19 +402,27 @@ impl Game {
         None => {}
       }
     }
+    println!("bruh");
+
     // scan for vertical attacks below king
     for row in (0..king.0).rev() {
       match self.board[row][king.1] {
         Some(piece) => {
           if piece.get_colour() == king_piece.get_colour() {
             break;
-          } else if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
+          }
+          if piece == Piece::Rook(c) || piece == Piece::Queen(c) {
+            println!("tha piece {:?}", piece);
             return true;
+          } else {
+            break;
           }
         }
         None => {}
       }
     }
+    println!("bruh 2");
+
     // scan for horizontal attacks right to the king
     for col in (king.1 + 1)..=7 {
       match self.board[king.0][col] {
@@ -749,6 +753,11 @@ impl Game {
     } else {
       // check if black is still in check
       if fake_game.check(String::from("black")) {
+        println!(
+          "Still in check after {:?} from {:?} to {:?}",
+          moving_piece, from, to
+        );
+        fake_game.print_board();
         fake_game.state = GameState::Check;
         return false;
       }
@@ -764,10 +773,12 @@ impl Game {
     let mut all_moves = Game::get_all_moves(self, position, moving_piece);
     let from = Game::parse_string(&_position);
 
+    println!("before check = {:?}", all_moves);
     if self.state == GameState::Check {
       // only keep moves that removes the check
       all_moves.retain(|to| self.move_removes_check(&from, to, moving_piece));
     }
+    println!("before check = {:?}", all_moves);
 
     let mut str_moves = vec![];
     for mv in all_moves {
