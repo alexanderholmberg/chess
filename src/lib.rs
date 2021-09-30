@@ -65,7 +65,7 @@ impl Piece {
   }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 struct Castling {
   white_queen: bool,
   white_king: bool,
@@ -73,7 +73,7 @@ struct Castling {
   black_king: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Game {
   state: GameState,
   name: String,
@@ -260,6 +260,29 @@ impl Game {
   // fn removes_check(&self, mv: String) -> bool {
   //   false
   // }
+  fn move_removes_check(&mut self, from: &String, to: &String, moving_piece: Piece) -> bool {
+    // 1. make move
+    // clone board
+    let mut fake_game = self.clone();
+    let from = Game::parse_string(&from);
+    let to = Game::parse_string(&to);
+    fake_game.board[to.0][to.1] = Some(moving_piece);
+    fake_game.board[from.0][from.1] = None;
+    if moving_piece.get_colour() == Colour::White {
+      // check if white is still in check
+      if fake_game.check(String::from("white")) {
+        fake_game.state = GameState::Check;
+        return false;
+      }
+    } else {
+      // check if black is still in check
+      if fake_game.check(String::from("black")) {
+        fake_game.state = GameState::Check;
+        return false;
+      }
+    }
+    true
+  }
 
   // returns Some(GameState) if move is possible, else None
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
@@ -272,43 +295,51 @@ impl Game {
     }
 
     let mut make_move = false;
-    let mut possible_moves = Game::get_possible_moves(self, _from);
+    let mut possible_moves = Game::get_possible_moves(self, _from.clone())?;
+    println!(
+      "moves before for {:?} at {:?} = {:?}",
+      moving_piece, old_position, possible_moves
+    );
     if self.state == GameState::Check {
+      possible_moves.retain(|to| self.move_removes_check(&_from, &to, moving_piece));
       // only keep moves that removes the check
       // 1. make move
       // 2. see if check is gone by calling check()
       // 3. roll back move
       // checkmate if there are zero moves
     }
+    self.print_board();
+    println!(
+      "moves after for {:?} at {:?} = {:?}",
+      moving_piece, old_position, possible_moves
+    );
 
-    match possible_moves {
-      Some(moves) => {
-        if moves.len() == 0 {
-          self.state = GameState::GameOver;
-          return Some(self.state);
-        }
-        for mv in moves {
-          if mv == _to {
-            make_move = true;
-            break;
-          }
-        }
-        if make_move {
-          // check for check here
-          // can't move into check
-          // 1. make move
-          // 2. see if player is in check by calling check()
-          // 3. roll back move
-          // stalemate if zero moves
-          self.board[new_position.0][new_position.1] = Some(moving_piece);
-          self.board[old_position.0][old_position.1] = None;
-          self.turn = match self.turn {
-            Colour::White => Colour::Black,
-            Colour::Black => Colour::White,
-          };
-        }
+    if possible_moves.len() == 0 {
+      self.state = GameState::GameOver;
+      return Some(self.state);
+    }
+    for mv in possible_moves {
+      if mv == _to {
+        make_move = true;
+        break;
       }
-      None => {}
+    }
+    if make_move {
+      // check for check here
+      // can't move into check
+      // 1. make move
+      // 2. see if player is in check by calling check()
+      // 3. roll back move
+      // stalemate if zero moves
+      self.board[new_position.0][new_position.1] = Some(moving_piece);
+      self.board[old_position.0][old_position.1] = None;
+      self.turn = match self.turn {
+        Colour::White => Colour::Black,
+        Colour::Black => Colour::White,
+      };
+    } else {
+      // move is not possible to make
+      return None;
     }
 
     // guaranteed not in check if we are here

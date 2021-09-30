@@ -643,11 +643,13 @@ mod tests {
       assert_eq!(game.state, GameState::InProgress);
       game.make_move(String::from("d3"), String::from("e2"));
       assert_eq!(game.state, GameState::Check);
-      game.make_move(String::from("f4"), String::from("e3"));
+      game.make_move(String::from("f1"), String::from("e2"));
       assert_eq!(game.state, GameState::InProgress);
       game.make_move(String::from("f8"), String::from("b4"));
       assert_eq!(game.state, GameState::Check);
-      game.make_move(String::from("e1"), String::from("e2"));
+      game.make_move(String::from("e1"), String::from("f1"));
+      game.make_move(String::from("b4"), String::from("e1"));
+      game.make_move(String::from("f1"), String::from("e1"));
       assert_eq!(game.state, GameState::InProgress);
       let mut game = Game::new_from_fen(String::from(
         "rnbk4/ppp2ppp/2P4n/bP4N1/P7/4B1p1/R3K2P/3r1B1R b - - 2 19",
@@ -780,6 +782,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn cant_move_into_check() {
       let mut game = Game::new_from_fen(String::from(
         "r1bq2nr/4kppN/3b4/pnpQ4/P1P5/4p3/5PPP/R1B1KB1R b KQ - 1 17",
@@ -818,7 +821,7 @@ mod tests {
     #[test]
     fn get_out_of_check() {
       let mut game = Game::new_from_fen(String::from(
-        "r1bq2nr/4kppN/3b4/pnpQ4/P1P5/4p3/5PPP/R1B1KB1R b KQ - 1 17",
+        "r1bq2nr/4kppN/3b4/p1pQ4/P1P5/n3p3/5PPP/R1B1KB1R w KQ - 2 18",
       ));
       game.make_move(String::from("d5"), String::from("e5"));
       assert_eq!(game.state, GameState::Check);
@@ -849,6 +852,42 @@ mod tests {
       assert_eq!(
         game
           .make_move(String::from("e7"), String::from("d7"))
+          .is_some(),
+        true
+      );
+
+      let mut game = Game::new_from_fen(String::from(
+        "r1b1q1nr/3k1ppN/3b4/p1p5/P1n5/B5Q1/5pPP/R2K1B1R b - - 1 22",
+      ));
+      game.make_move(String::from("e8"), String::from("e1"));
+      assert_eq!(game.state, GameState::Check);
+      assert_eq!(
+        game
+          .make_move(String::from("d1"), String::from("c1"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("d1"), String::from("d2"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("d1"), String::from("e1"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("d1"), String::from("e2"))
+          .is_none(),
+        true
+      );
+      assert_eq!(
+        game
+          .make_move(String::from("d1"), String::from("c2"))
           .is_some(),
         true
       );
