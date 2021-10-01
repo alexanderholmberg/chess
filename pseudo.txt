@@ -3,4 +3,5 @@ check for check:
 
   
 
-  
+checkmate:
+  - if in check and cant make a single move to undo the check
