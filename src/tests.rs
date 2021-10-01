@@ -966,14 +966,4 @@ mod tests {
       );
     }
   }
-
-  mod other {
-    use crate::Colour;
-    use crate::Game;
-    #[test]
-    fn gets_colour_from_string() {
-      assert_eq!(Game::colour_from_string("white"), Colour::White);
-      assert_eq!(Game::colour_from_string("black"), Colour::Black);
-    }
-  }
 }

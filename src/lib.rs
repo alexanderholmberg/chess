@@ -1,3 +1,4 @@
+use colored::*;
 use std::io;
 mod tests;
 
@@ -186,10 +187,11 @@ impl Game {
   }
 
   fn print_board(&self) {
-    println!();
+    println!("\n\t  BLACK");
     let mut col_number = 8;
     for row in self.board.iter().rev() {
-      print!("{:?}", col_number);
+      let col_number_str = format!("{}", col_number);
+      print!("{}", col_number_str.green());
       col_number -= 1;
       for maybe_piece in row {
         // turn piece from Option to beautiful ascii chess pieces
@@ -201,12 +203,15 @@ impl Game {
       }
       println!();
     }
-    println!(" 'A''B''C''D''E''F''G''H'");
+    println!("{}", " 'A''B''C''D''E''F''G''H'".green());
+    println!("\t  WHITE\n");
   }
 
   pub fn play() {
     let mut game = Game::new();
     while game.state != GameState::GameOver {
+      game.print_board();
+      println!("STATE OF THE GAME = {:?}", game.get_game_state());
       match game.turn {
         Colour::White => {
           println!("move for white (from, to) EXAMPLE a2a4: ");
@@ -222,7 +227,7 @@ impl Game {
         Ok(pos) => pos,
         Err(_) => continue,
       };
-      if actual_move == "q" {
+      if actual_move == "quit" {
         break;
       }
       let mut from = String::from("");
@@ -236,21 +241,24 @@ impl Game {
       }
       // kolla ifall from och to ar legit moves
       if !Game::check_input(from.clone(), to.clone()) {
-        println!("illegal input!");
+        println!("{}", "illegal input!".red());
         continue;
       }
       println!("from: {}, to: {}", from, to);
       match game.make_move(from.clone(), to.clone()) {
         Some(_) => {}
         None => {
-          println!("illegal move!");
+          println!("{}", "illegal move!".red());
           continue;
         }
       }
 
       if game.promote.0 {
         loop {
-          println!("Promote your pawn! q for queen, r for rook, k for knight and b for bishop: ");
+          println!(
+            "{}",
+            "Promote your pawn! q for queen, r for rook, k for knight and b for bishop: ".green()
+          );
           let mut promotion = String::new();
           io::stdin()
             .read_line(&mut promotion)
@@ -272,14 +280,12 @@ impl Game {
             game.set_promotion(game.promote.1.clone(), 'b');
             break;
           } else {
-            println!("Only acceptable input is q, r, k or b.")
+            println!("{}", "Only acceptable input is q, r, k or b.".red());
           }
         }
       }
       game.promote = (false, String::new());
 
-      game.print_board();
-      println!("STATE OF THE GAME = {:?}", game.get_game_state());
       if game.state == GameState::Checkmate || game.state == GameState::Stalemate {
         println!("THE RESULT OF THE GAME IS = {:?}", game.state);
         game.state = GameState::GameOver;
@@ -383,9 +389,7 @@ impl Game {
     }
 
     let exists = self.move_exists();
-    println!("state = {:?}, exists = {}", self.state, exists);
     if !exists && self.state == GameState::Check {
-      println!("checkmate");
       self.state = GameState::Checkmate;
     } else if !exists && self.state == GameState::InProgress {
       self.state = GameState::Stalemate;
