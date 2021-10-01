@@ -26,7 +26,8 @@ Positions are given as strings with the format `"<file><rank>"`. For example, `"
 
 For the terminal chess, to move a piece you type in the previous position followed by the new position. For example, if you want to go from a2 to a4, the input should be `a2a4`. To start the terminal chess, just type `cargo run`.
 What it looks like:
-![Chess UI](/assets/chessUI.png)
+
+![Chess UI](/assets/chessUIWhiteTerminal.png)
 
 The tests are divided into three modules, `init`, `movement` and `special_rules`. Type `cargo test <module>` to test a specific module, or just type `cargo test` to test them all at once.
 
