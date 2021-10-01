@@ -32,8 +32,7 @@ pub enum Piece {
 
 impl Piece {
   pub fn get_colour(&self) -> Colour {
-    // figure out how to pattern match the piece kind
-    // because this is uuuuuugly
+    // figure out how to pattern match the piece kind because this is ugly
     match self {
       Piece::Pawn(Colour::White) => Colour::White,
       Piece::Pawn(Colour::Black) => Colour::Black,
@@ -156,7 +155,6 @@ impl Game {
 
     // println!("fullmoves = {}", lines[5]);
 
-    // (board, turn, castling_white, castling_black)
     let mut game = Game {
       turn,
       name: String::from("yoo"),
@@ -326,7 +324,6 @@ impl Game {
     tiles
   }
 
-  // returns Some(GameState) if move is possible, else None
   pub fn make_move(&mut self, _from: String, _to: String) -> Option<GameState> {
     let old_position = Game::parse_string(&_from);
     let new_position = Game::parse_string(&_to);
