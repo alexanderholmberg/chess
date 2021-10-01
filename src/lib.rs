@@ -86,7 +86,6 @@ pub struct Game {
 }
 
 impl Game {
-  // creates a new game
   pub fn new() -> Game {
     let standard_starting_board =
       String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -207,7 +206,7 @@ impl Game {
 
   pub fn play() {
     let mut game = Game::new();
-    loop {
+    while game.state != GameState::GameOver {
       match game.turn {
         Colour::White => {
           println!("move for white (from, to) EXAMPLE a2a4: ");
@@ -283,7 +282,7 @@ impl Game {
       println!("STATE OF THE GAME = {:?}", game.get_game_state());
       if game.state == GameState::Checkmate || game.state == GameState::Stalemate {
         println!("THE RESULT OF THE GAME IS = {:?}", game.state);
-        break;
+        game.state = GameState::GameOver;
       }
     }
   }
@@ -779,6 +778,9 @@ impl Game {
   }
 
   pub fn set_promotion(&mut self, position: String, new_piece: char) -> () {
+    if !self.promote.0 {
+      return;
+    }
     let piece = self.get_piece_at(position.clone()).unwrap();
     let pos = Game::parse_string(&position);
     match new_piece {
@@ -789,8 +791,7 @@ impl Game {
       _ => {}
     }
   }
-  // // get current game state
-  // the api return GameState, not a reference
+
   pub fn get_game_state(&self) -> &GameState {
     &self.state
   }
@@ -817,8 +818,6 @@ impl Game {
     true
   }
 
-  // given position, returns all possible moves for the piece
-  // None at position, return None
   pub fn get_possible_moves(&self, _position: String) -> Option<Vec<String>> {
     let position = Game::parse_string(&_position);
     let moving_piece = self.board[position.0][position.1]?;

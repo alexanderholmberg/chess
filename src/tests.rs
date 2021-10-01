@@ -888,7 +888,7 @@ mod tests {
     }
 
     #[test]
-    fn checkmate() {
+    fn checkmate_works() {
       let mut game = Game::new_from_fen(String::from(
         "1r1qkb1r/p3p2p/p4n1p/2P2P2/P5bP/Np5N/5PP1/R3KR2 b Qk - 1 14",
       ));
@@ -911,7 +911,7 @@ mod tests {
     }
 
     #[test]
-    fn stalemate() {
+    fn stalemate_works() {
       let mut game = Game::new_from_fen(String::from(
         "k7/1R1RN3/p3p3/P3P2p/1PP4P/3K1PP1/8/8 b - - 1 2",
       ));
@@ -922,6 +922,12 @@ mod tests {
     #[test]
     fn promotion_works() {
       let mut game = Game::new_from_fen(String::from(
+        "rnbqkbnr/5ppp/8/pNp1N3/3Pp3/8/PPP2PPP/R1BQKB1R w KQkq - 0 7",
+      ));
+      assert_eq!(game.promote.clone(), (false, String::new()));
+      game.set_promotion(game.promote.1.clone(), 'q');
+
+      let mut game = Game::new_from_fen(String::from(
         "r1bqkbnr/1P1ppppp/p1p5/8/1P1n4/8/2PPPPPP/RNBQKBNR w KQkq - 0 6",
       ));
       assert_eq!(
@@ -930,7 +936,6 @@ mod tests {
       );
       game.make_move(String::from("b7"), String::from("b8"));
       assert_eq!(game.promote.clone(), (true, String::from("b8")));
-      game.print_board();
       assert_eq!(
         game.get_piece_at(String::from("b8")).unwrap(),
         Piece::Pawn(Colour::White)
