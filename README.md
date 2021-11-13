@@ -1,6 +1,6 @@
-# DD1337 Week 3-4
+## Chess library and command line chess in Rust
 
-## Chess Project
+## Chess library
 
 Following public functions are found in the public struct `Game`:
 
@@ -24,13 +24,19 @@ The program also exports an enumerable `GameState` with the values:
 
 Positions are given as strings with the format `"<file><rank>"`. For example, `"a4"` or `"d6"`
 
-For the terminal chess, to move a piece you type in the previous position followed by the new position. For example, if you want to go from a2 to a4, the input should be `a2a4`. To start the terminal chess, just type `cargo run`.
-What it looks like:
+# Command Line Chess
+
+For the command linie chess, to move a piece you type in the previous position followed by the new position. For example, if you want to go from a2 to a4, the input should be `a2a4`. To start the terminal chess, just type `cargo run`.
+What it looks like in a light-themed(cursed I know) terminal:
 
 ![Chess UI](/assets/chessUIWhiteTerminal.png)
+
+# More
 
 The tests are divided into three modules, `init`, `movement` and `special_rules`. Type `cargo test <module>` to test a specific module, or just type `cargo test` to test them all at once.
 
 OBS! There are some inefficient searches made in this program
+
+# TODO
 
 Castling and en passant are not implemented yet
